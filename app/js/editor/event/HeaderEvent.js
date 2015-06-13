@@ -1,0 +1,3 @@
+define({
+	MENU_ITEM_SELECTED: 'HeaderEvent.MENU_ITEM_SELECTED'
+});

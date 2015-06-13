@@ -1,0 +1,59 @@
+
+.siteheader {
+	position: fixed;
+	width: 100%;
+	padding: 10px 10px 0px 10px;
+	background: #8a0917;
+	color: white;
+	box-shadow: 3px 3px 12px rgba(0,0,0,0.2);
+	z-index: 999;
+	height: 55px;
+}
+
+.siteheader ul.menu {
+	margin-top: 5px;
+}
+
+.siteheader ul.menu > li {
+	position: relative;
+	float: left;
+	margin-right: 5px;
+	padding: 10px 4px 4px 4px;
+}
+
+.siteheader ul.menu > li h2 {
+	font-weight: normal;
+}
+
+.siteheader ul.menu ul.sub {
+	position: absolute;
+	left: 0;
+	top: 25px;
+	width: 120px;
+	display: none;
+	background-color: #610917;
+	z-index: 10;
+}
+
+.siteheader ul.menu ul.sub li {
+	padding: 10px 10px 5px 10px;
+}
+
+.siteheader ul.menu ul.sub li a {
+	font-size: 12px;
+	color: white;
+	text-decoration: none;
+}
+
+.siteheader ul.menu ul.sub li a:hover {
+	text-decoration: underline;
+}
+
+.siteheader .menu li h2 {
+	font-size: 12px;
+	
+}
+
+.siteheader h1 {
+	font-size: 20px;
+}

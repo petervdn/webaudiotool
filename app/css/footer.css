@@ -1,0 +1,44 @@
+#footer {
+	position: fixed;
+	left: 0;
+	bottom: 0;
+	width: 100%;
+	height: 140px;
+	z-index: 100;
+	background-color: #595241;
+	color: white;
+	font-size: 12px;
+}
+
+#footer .breadcrumb {
+	
+	padding: 10px;
+	background-color: rgba(0,0,0,0.2);
+}
+
+#footer a {
+
+	color: white;
+}
+
+#footer ul.options {
+	position: fixed;
+	right: 0;
+}
+
+#footer ul.options li {
+	float: right;
+	border: 0px solid red;
+	padding: 10px;
+}
+
+
+#footer .livecode {
+	padding: 10px;
+	font-family: Courier;
+	color: white;
+	font-size: 10px;
+	height: 80px;
+	border: 0px solid white;
+	overflow-y: auto;
+}

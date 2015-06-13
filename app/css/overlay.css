@@ -1,0 +1,61 @@
+#overlay {
+
+	position: fixed;
+	background-color: rgba(0,0,0,0.8);
+	width: 100%;
+	height: 100%;
+	z-index: 999;
+	top: 0;
+	left: 0;
+	display: none;
+}
+
+#overlay .container {
+	position: relative;
+	background-color: white;
+	margin: 0 auto;
+	border-radius: 5px;
+	top: 50%;
+	transform: translateY(-50%);
+	padding: 20px;
+}
+
+#overlay .container h2 {
+	color: #595241;
+	font-size: 22px;
+}
+
+#overlay .container.code pre {
+	font-size: 11px;
+	font-family: Courier;
+}
+
+#overlay .container.help ul {
+	margin: 20px;
+	list-style: disc;
+	font-size: 14px;
+}
+
+#overlay .container.share .content  {
+	text-align: center;
+	padding: 70px 0 0 0;
+}
+
+#overlay .container.share .content button {
+	padding: 10px;
+	margin: 0 auto;
+	width: 200px;
+}
+
+#overlay .container.share .content input {
+	width: 250px;
+	font-size: 18px;
+	padding: 5px;
+	text-align: center;
+}
+
+#overlay .container.share .content .error {
+	color: red;
+	font-size: 14px;
+	padding: 5px;
+}

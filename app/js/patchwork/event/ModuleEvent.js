@@ -1,0 +1,3 @@
+define({
+	ATTRIBUTE_CHANGED: 'ModuleEvent.ATTRIBUTE_CHANGED'
+})

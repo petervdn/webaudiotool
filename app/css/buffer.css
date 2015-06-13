@@ -1,0 +1,45 @@
+#bufferlist {
+	position: fixed;
+	z-index: 100;
+	right: 0;
+	top: 65px;
+	background-color: rgba(0,0,0,0.7);
+	width: 190px;
+	height: calc(100% - 225px);
+	color: white;
+	padding: 10px;
+}
+
+#bufferlist .header {
+
+}
+
+#bufferlist .header a.new {
+	position: relative;
+}
+
+#bufferlist .header a.new {
+	color: white;
+	float: right;
+	font-size: 11px;
+	position: absolute;
+	right: 10px;
+	top: 10px;
+}
+
+#bufferlist .header h2 {
+	font-size: 16px;
+	font-weight: normal;
+}
+
+#bufferlist .list .buffer {
+	height: 50px;
+	background-color: black;
+	margin: 5px 0;
+	padding: 5px;
+}
+
+#bufferlist .list .buffer h3 {
+	font-size: 10px;
+	font-weight: normal;
+}
