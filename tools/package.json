@@ -1,8 +1,11 @@
 {
-  "name": "web audio tool",
+  "name": "web-audio-tool",
   "version": "1.0.0",
   "description": "",
   "devDependencies": {
-    "requirejs": "^2.2.0"
+    "grunt": "^1.0.1",
+    "grunt-ts": "^5.5.1",
+    "requirejs": "^2.2.0",
+    "typescript": "^1.8.10"
   }
 }

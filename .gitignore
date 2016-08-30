@@ -1,3 +1,4 @@
 tools/node_modules/
 .idea/
 build/
+tools/.tscache/
