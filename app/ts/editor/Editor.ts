@@ -1,6 +1,9 @@
+import Patch from "../patchwork/core/Patch";
+
 class Editor
 {
-
+	public footer:Footer;
+	
 	constructor(audioContext)
 	{
 		

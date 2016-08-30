@@ -5,8 +5,8 @@ module.exports = function(grunt) {
 		{
 			ts: {
 				base: {
-					//src: ['../app/**/*.ts'],
-					src: ['../app/ts/patchwork/core/Patch.ts'],
+					src: ['../app/**/*.ts'],
+					//src: ['../app/ts/patchwork/core/Patch.ts'],
 					dest: '',
 					options: {
 						module: 'amd',
