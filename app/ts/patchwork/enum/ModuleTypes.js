@@ -1,7 +1,8 @@
-define(["require", "exports"], function (require, exports) {
-    "use strict";
-    class ModuleTypes {
+"use strict";
+var ModuleTypes = (function () {
+    function ModuleTypes() {
     }
+    // native
     ModuleTypes.ANALYSER = 'analyser';
     ModuleTypes.BIQUAD_FILTER = 'biquad';
     ModuleTypes.BUFFER_SOURCE = 'buffersource';
@@ -17,10 +18,12 @@ define(["require", "exports"], function (require, exports) {
     ModuleTypes.SPATIALIZER = 'spatializer';
     ModuleTypes.STEREO_PANNER = 'panner';
     ModuleTypes.WAVE_SHAPER = 'waveshaper';
+    // proxy
     ModuleTypes.INPUT = 'input';
     ModuleTypes.OUTPUT = 'output';
     ModuleTypes.SUBPATCH = 'sub';
     ModuleTypes.DESTINATION = 'destination';
-    Object.defineProperty(exports, "__esModule", { value: true });
-    exports.default = ModuleTypes;
-});
+    return ModuleTypes;
+}());
+exports.__esModule = true;
+exports["default"] = ModuleTypes;

@@ -1,6 +1,6 @@
-define(["require", "exports"], function (require, exports) {
-    "use strict";
-    class AttributeTypes {
+"use strict";
+var AttributeTypes = (function () {
+    function AttributeTypes() {
     }
     AttributeTypes.AUDIO_PARAM = 'AttributeTypes.AUDIO_PARAM';
     AttributeTypes.FLOAT = 'AttributeTypes.FLOAT';
@@ -10,6 +10,7 @@ define(["require", "exports"], function (require, exports) {
     AttributeTypes.BUFFER = 'AttributeTypes.BUFFER';
     AttributeTypes.STREAM = 'AttributeTypes.STREAM';
     AttributeTypes.FLOAT_ARRAY = 'AttributeTypes.FLOAT_ARRAY';
-    Object.defineProperty(exports, "__esModule", { value: true });
-    exports.default = AttributeTypes;
-});
+    return AttributeTypes;
+}());
+exports.__esModule = true;
+exports["default"] = AttributeTypes;

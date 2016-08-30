@@ -31,7 +31,7 @@ class AudioContextManager extends EventDispatcher
 		this.patch.addEventListener(PatchEvent.MODULE_ATTRIBUTE_CHANGED, this.patchEventHandler);
 	}
 
-	handlePatchEvent (type, data):void
+	private handlePatchEvent(type, data):void
 	{
 		switch(type)
 		{

@@ -1,17 +1,24 @@
-class Footer
+import FooterEvent from "./event/FooterEvent";
+import Tracking from "./net/Tracking";
+import EventDispatcher from "../patchwork/core/EventDispatcher";
+
+declare var $:any; // todo
+
+class Footer extends EventDispatcher
 {
 	public $element:any;
 	public $breadcrumb:any;
 
-
 	constructor()
 	{
+		super();
+
 		this.$element = $('#footer');
 
 		// init footer
 		this.$breadcrumb = this.$element.find('.breadcrumb');
 
-		this.$breadcrumb.on('click', function(event){
+		this.$breadcrumb.on('click', function(event){ // todo arrow functions
 
 			if($(event.target).is('a'))
 			{
@@ -44,7 +51,7 @@ class Footer
 		}.bind(this));
 	}
 
-	Footer.prototype.setBreadcrumb = function(patch)
+	public setBreadcrumb(patch):void
 	{
 		var list = patch.createParentList();
 
