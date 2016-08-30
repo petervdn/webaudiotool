@@ -1,0 +1,8 @@
+{
+  "name": "web audio tool",
+  "version": "1.0.0",
+  "description": "",
+  "devDependencies": {
+    "requirejs": "^2.2.0"
+  }
+}
