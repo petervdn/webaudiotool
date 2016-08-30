@@ -4,7 +4,7 @@ var config = {
     baseUrl: "../app/js",
     appDir: "../app",
     name: "app",
-    dir: "../app_build",
+    dir: "../build",
     mainConfigFile: "../app/js/app.js",
     removeCombined: true
 };
