@@ -1,4 +1,4 @@
-<?
+<?php
   $v = 11;
 ?>
 <!DOCTYPE html>
@@ -8,7 +8,7 @@
       
       <script src="js/lib/require.js"></script>
       
-      <?
+      <?php
         echo '<link rel="stylesheet" type="text/css" href="css/style.css?v=' . $v . "\">\n";
         echo '<link rel="stylesheet" type="text/css" href="css/code.css?v=' . $v . "\">\n";
         echo '<link rel="stylesheet" type="text/css" href="css/header.css?v=' . $v . "\">\n";
@@ -58,6 +58,6 @@
       <input type="file" style="display:none" accept=".pw">
     </body>
     <script>
-        require(["js/app.js?v=<?= $v ?>"]);
+        require(["js/app.js?v=<?php echo $v ?>"]);
       </script>
 </html>
