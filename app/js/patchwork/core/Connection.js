@@ -83,6 +83,25 @@ define(["require", "exports", "../enum/ModuleTypes"], function (require, exports
         toString() {
             return '[Connection src=' + this.sourceModule.id + ' srcOutput=' + this.sourceOutputIndex + ' dst=' + this.destinationModule.id + ' dstInput=' + this.destinationInputIndex + ']';
         }
+        isInList(connections, ignoreDestination = false) {
+            for (var i = 0; i < connections.length; i++) {
+                if (!ignoreDestination) {
+                    if (this.sourceModule === connections[i].sourceModule &&
+                        this.sourceOutputIndex === connections[i].sourceOutputIndex &&
+                        this.destinationModule === connections[i].destinationModule &&
+                        this.destinationInputIndex === connections[i].destinationInputIndex) {
+                        return true;
+                    }
+                }
+                else {
+                    if (this.sourceModule === connections[i].sourceModule &&
+                        this.sourceOutputIndex === connections[i].sourceOutputIndex) {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
         destruct() {
             this.sourceModule = null;
             this.sourceOutputIndex = null;

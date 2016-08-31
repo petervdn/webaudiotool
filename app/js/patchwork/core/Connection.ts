@@ -130,6 +130,38 @@ class Connection
 		return '[Connection src=' + this.sourceModule.id + ' srcOutput=' + this.sourceOutputIndex + ' dst=' + this.destinationModule.id + ' dstInput=' + this.destinationInputIndex +']';
 	}
 
+	public isInList(connections:Array<Connection>, ignoreDestination:boolean = false):boolean
+	{
+		for(var i = 0; i < connections.length; i ++)
+		{
+			if(!ignoreDestination)
+			{
+				if(
+					this.sourceModule          === connections[i].sourceModule &&
+					this.sourceOutputIndex     === connections[i].sourceOutputIndex &&
+					this.destinationModule     === connections[i].destinationModule &&
+					this.destinationInputIndex === connections[i].destinationInputIndex
+				)
+				{
+					return true;
+				}
+			}
+			else
+			{
+				if(
+					this.sourceModule      === connections[i].sourceModule &&
+					this.sourceOutputIndex === connections[i].sourceOutputIndex
+				)
+				{
+					return true;
+				}
+			}
+	
+		}
+	
+		return false;
+	}
+
 	public destruct():void
 	{
 		this.sourceModule = null;

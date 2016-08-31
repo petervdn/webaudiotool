@@ -36,8 +36,7 @@ define(["require", "exports"], function (require, exports) {
             }
             else {
                 if (this._eventListeners[type]) {
-                    var len = this._eventListeners[type].length; // TODO WTFFFFF
-                    for (var i = 0; i < len; i++) {
+                    for (var i = 0; i < this._eventListeners[type].length; i++) {
                         this._eventListeners[type][i](type, data);
                     }
                 }

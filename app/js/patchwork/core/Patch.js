@@ -3,13 +3,11 @@ define(["require", "exports", "./EventDispatcher", "./Connection", "./AudioConte
     class Patch extends EventDispatcher_1.default {
         constructor(audioContext, parentModule) {
             super();
+            this.modules = [];
             this.connections = [];
             this.countsByType = {};
-            if (!audioContext)
-                console.error('Cannot create patch without an AudioContext');
             this.parentModule = parentModule;
             this.audioContext = audioContext;
-            this.modules = [];
             if (!parentModule) {
                 // only the root gets a listener, all subpatches bubble their events to here
                 this.audioContextManager = new AudioContextManager_1.default(this, audioContext);
@@ -21,9 +19,9 @@ define(["require", "exports", "./EventDispatcher", "./Connection", "./AudioConte
             this.moduleEventHandler = this.handleModuleEvent.bind(this);
         }
         removeConnection(connectionToRemove) {
-            var index = this.connections.indexOf(connectionToRemove);
+            let index = this.connections.indexOf(connectionToRemove);
             if (index >= 0) {
-                // event before removing, so the ACM can still figure out what connections are involved
+                // dispatch event *before* removing, so the ACM can still figure out what connections are involved
                 this.dispatchEvent(PatchEvent_1.default.CONNECTION_PRE_REMOVE, { connection: connectionToRemove });
                 this.connections.splice(index, 1);
                 // editor redraws from post event
@@ -34,12 +32,12 @@ define(["require", "exports", "./EventDispatcher", "./Connection", "./AudioConte
                 console.error('Connection not found', connectionToRemove);
             }
         }
-        addModuleByType(moduleType, args, moduleObject) {
+        addModuleByType(moduleType, moduleArguments, moduleObject) {
             if (!moduleType) {
                 console.error('No type given');
                 return;
             }
-            var definition = ModuleDefinitions_1.default.findByType(moduleType);
+            let definition = ModuleDefinitions_1.default.findByType(moduleType);
             //console.log('addModuleByType', moduleType);
             if (definition) {
                 // init the counter for this moduletype
@@ -48,9 +46,9 @@ define(["require", "exports", "./EventDispatcher", "./Connection", "./AudioConte
                 // increase count
                 this.countsByType[moduleType]++;
                 // get the id of the module (module data, containing a saved id is given when loading a patch)
-                var moduleId = moduleObject ? moduleObject.id : moduleType + Patch.ID_COUNT_SEPARATOR + this.countsByType[moduleType];
+                let moduleId = moduleObject ? moduleObject.id : moduleType + Patch.ID_COUNT_SEPARATOR + this.countsByType[moduleType];
                 // create the module TODO try/catch this all and make sure the id doesnt get incremented if all fails
-                var module = new Module_1.default(this, definition, moduleId, args);
+                let module = new Module_1.default(this, definition, moduleId, moduleArguments);
                 this.modules.push(module);
                 // if the module was loaded, set the position as well (so the visualmodule doesnt set to default startposition)
                 if (moduleObject) {
@@ -58,7 +56,7 @@ define(["require", "exports", "./EventDispatcher", "./Connection", "./AudioConte
                 }
                 // if it was a subpatch, we need to give it a new patch
                 if (definition.type === ModuleTypes_1.default.SUBPATCH) {
-                    var subPatch = new Patch(this.audioContext, module);
+                    let subPatch = new Patch(this.audioContext, module);
                     // listen to subpatch events. should be done BEFORE setting the subpatch, so that when loaded, the events from adding nested modules
                     // are caught and the ACM can set the audionode
                     this.addEventListenersToSubPatch(subPatch);
@@ -77,14 +75,14 @@ define(["require", "exports", "./EventDispatcher", "./Connection", "./AudioConte
                 // listen to module events
                 this.addEventListenersToModule(module);
                 // notify ACM (audionode gets set in this module) and the editor (visual module is created)
-                this.dispatchEvent(PatchEvent_1.default.MODULE_ADDED, { module: module, args: args });
+                this.dispatchEvent(PatchEvent_1.default.MODULE_ADDED, { module: module, args: moduleArguments });
                 // after event has been dispatched, set the values (so there is a node to set the values on and the visual module can update its values)
                 if (moduleObject)
                     module.setAttributesByLoadedObject(moduleObject);
                 return module; // for now only needed for parsing a json and handling a subpatch TODO what is this?!
             }
             else {
-                console.error('No module definition found for id: ' + moduleId);
+                console.error('No module definition found for type: ' + moduleType);
             }
         }
         handleModuleEvent(type, data) {

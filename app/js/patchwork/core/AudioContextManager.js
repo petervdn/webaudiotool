@@ -1,4 +1,4 @@
-define(["require", "exports", "../event/PatchEvent", "../enum/ModuleCategories", "../event/AudioContextManagerEvent", "../util/Utils", "./EventDispatcher"], function (require, exports, PatchEvent_1, ModuleCategories_1, AudioContextManagerEvent_1, Utils_1, EventDispatcher_1) {
+define(["require", "exports", "../event/PatchEvent", "../enum/ModuleCategories", "../event/AudioContextManagerEvent", "./EventDispatcher"], function (require, exports, PatchEvent_1, ModuleCategories_1, AudioContextManagerEvent_1, EventDispatcher_1) {
     "use strict";
     class AudioContextManager extends EventDispatcher_1.default {
         constructor(patch, audioContext) {
@@ -99,7 +99,7 @@ define(["require", "exports", "../event/PatchEvent", "../enum/ModuleCategories",
                                 var outgoingApiConnectionsToAdd = outgoingConnections[j].getApiConnections();
                                 // loop through them so we can check if we havent already added each of them
                                 for (var k = 0; k < outgoingApiConnectionsToAdd.length; k++) {
-                                    if (!Utils_1.connectionIsInList(outgoingApiConnectionsToAdd[k], outgoingApiConnections)) {
+                                    if (!outgoingApiConnectionsToAdd[k].isInList(outgoingApiConnections)) {
                                         outgoingApiConnections.push(outgoingApiConnectionsToAdd[k]);
                                     }
                                 }
@@ -111,7 +111,7 @@ define(["require", "exports", "../event/PatchEvent", "../enum/ModuleCategories",
                         // loop through all connections
                         for (var i = 0; i < outgoingApiConnections.length; i++) {
                             // and for each connection, see if it exists in the apiconnections to remove
-                            if (!Utils_1.connectionIsInList(outgoingApiConnections[i], apiConnectionsToRemove)) {
+                            if (!outgoingApiConnections[i].isInList(apiConnectionsToRemove)) {
                                 apiConnectionsToRestore.push(outgoingApiConnections[i]);
                             }
                         }
@@ -123,7 +123,7 @@ define(["require", "exports", "../event/PatchEvent", "../enum/ModuleCategories",
                         var removed = [];
                         for (var i = 0; i < apiConnectionsToRemove.length; i++) {
                             var removeConnection = apiConnectionsToRemove[i];
-                            if (!Utils_1.connectionIsInList(removeConnection, removed, true)) {
+                            if (!removeConnection.isInList(removed, true)) {
                                 removeConnection.sourceModule.audioNode.disconnect(removeConnection.sourceOutputIndex);
                                 this.dispatchEvent(AudioContextManagerEvent_1.default.OUTPUT_DISCONNECTED, {
                                     module: removeConnection.sourceModule,

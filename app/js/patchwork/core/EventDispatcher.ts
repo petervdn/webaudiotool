@@ -22,8 +22,6 @@ class EventDispatcher
 			if(!this._eventListeners[type]) this._eventListeners[type] = [];
 
 			this._eventListeners[type].push(callback);
-
-			//console.log('Callback added for: ' + type);
 		}
 	}
 
@@ -57,8 +55,7 @@ class EventDispatcher
 		{
 			if(this._eventListeners[type])
 			{
-				var len = this._eventListeners[type].length; // TODO WTFFFFF
-				for(var i = 0; i < len; i++)
+				for(var i = 0; i < this._eventListeners[type].length; i++)
 				{
 					this._eventListeners[type][i](type, data);
 				}

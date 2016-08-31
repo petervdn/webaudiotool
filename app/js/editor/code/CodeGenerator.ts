@@ -4,7 +4,6 @@ import Patch from "../../patchwork/core/Patch";
 import AttributeTypes from "../../patchwork/enum/AttributeTypes";
 import ModuleCategories from "../../patchwork/enum/ModuleCategories";
 import ModuleTypes from "../../patchwork/enum/ModuleTypes";
-import {connectionIsInList} from "../../patchwork/util/Utils";
 
 class CodeGenerator
 {
@@ -178,7 +177,7 @@ class CodeGenerator
         var connections = patch.getConnectionsWithNested();
 
         // get the api connections for those
-        var apiConnections = [];
+        var apiConnections:Array<Connection> = [];
         for(var i = 0; i < connections.length; i++)
         {
             apiConnections = apiConnections.concat(connections[i].getApiConnections());
@@ -187,11 +186,11 @@ class CodeGenerator
         // get the code for each api connection and avoid duplicates (TODO are there duplicates? and why?)
         if(apiConnections.length > 0)
         {
-            var done = [];
+            var done:Array<Connection> = [];
             for(var i = 0; i < apiConnections.length; i++)
             {
-                var connection = apiConnections[i];
-                if(!connectionIsInList(connection, done))
+                let connection:Connection = apiConnections[i];
+                if(!connection.isInList(done))
                 {
                     code.push(this.getStringForConnectionAdded(connection));
 
@@ -206,7 +205,7 @@ class CodeGenerator
     public static getPatchSetAttributesCode(patch:Patch):Array<string>
     {
         // loops through all (nested) modules and creates code for every attribute
-        var code = [];
+        var code:Array<string> = [];
         for(var i = 0; i < patch.modules.length; i++)
         {
             if(patch.modules[i].definition.category === ModuleCategories.NATIVE)
@@ -217,7 +216,6 @@ class CodeGenerator
             {
                 code = code.concat(this.getPatchSetAttributesCode(patch.modules[i].subPatch));
             }
-
         }
 
         return code;

@@ -1,7 +1,6 @@
 import PatchEvent from "../event/PatchEvent";
 import ModuleCategories from "../enum/ModuleCategories";
 import AudioContextManagerEvent from "../event/AudioContextManagerEvent";
-import {connectionIsInList} from "../util/Utils";
 import EventDispatcher from "./EventDispatcher";
 import Connection from "./Connection";
 import Patch from "./Patch";
@@ -11,7 +10,7 @@ class AudioContextManager extends EventDispatcher
 	public patch:Patch;
 	public logColor:string = '#FF00FF';
 	public audioContext:AudioContext;
-	public patchEventHandler:(type:string, data:any)=>void
+	public patchEventHandler:(type:string, data:any)=>void;
 	
 	constructor(patch:Patch, audioContext:AudioContext)
 	{
@@ -31,7 +30,7 @@ class AudioContextManager extends EventDispatcher
 		this.patch.addEventListener(PatchEvent.MODULE_ATTRIBUTE_CHANGED, this.patchEventHandler);
 	}
 
-	private handlePatchEvent(type, data):void
+	private handlePatchEvent(type:string, data:any):void
 	{
 		switch(type)
 		{
@@ -131,15 +130,12 @@ class AudioContextManager extends EventDispatcher
 						// loop through them so we can check if we havent already added each of them
 						for(var k = 0; k < outgoingApiConnectionsToAdd.length; k++)
 						{
-							if(!connectionIsInList(outgoingApiConnectionsToAdd[k], outgoingApiConnections))
+							if(!outgoingApiConnectionsToAdd[k].isInList(outgoingApiConnections))
 							{
 								outgoingApiConnections.push(outgoingApiConnectionsToAdd[k]);
 							}
 						}
-
-
 					}
-
 				}
 
 				// we now have a list of the outgoing api connections, which should include the ones to remove
@@ -150,7 +146,7 @@ class AudioContextManager extends EventDispatcher
 				for(var i = 0; i < outgoingApiConnections.length; i++)
 				{
 					// and for each connection, see if it exists in the apiconnections to remove
-					if(!connectionIsInList(outgoingApiConnections[i], apiConnectionsToRemove))
+					if(!outgoingApiConnections[i].isInList(apiConnectionsToRemove))
 					{
 						apiConnectionsToRestore.push(outgoingApiConnections[i]);
 					}
@@ -166,7 +162,7 @@ class AudioContextManager extends EventDispatcher
 				{
 					var removeConnection = apiConnectionsToRemove[i];
 
-					if(!connectionIsInList(removeConnection, removed, true))
+					if(!removeConnection.isInList(removed, true))
 					{
 						removeConnection.sourceModule.audioNode.disconnect(removeConnection.sourceOutputIndex);
 
@@ -177,7 +173,6 @@ class AudioContextManager extends EventDispatcher
 
 						removed.push(removeConnection);
 					}
-
 				}
 
 				// and restore connections

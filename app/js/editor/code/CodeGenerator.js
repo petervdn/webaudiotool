@@ -1,4 +1,4 @@
-define(["require", "exports", "../../patchwork/enum/AttributeTypes", "../../patchwork/enum/ModuleCategories", "../../patchwork/enum/ModuleTypes", "../../patchwork/util/Utils"], function (require, exports, AttributeTypes_1, ModuleCategories_1, ModuleTypes_1, Utils_1) {
+define(["require", "exports", "../../patchwork/enum/AttributeTypes", "../../patchwork/enum/ModuleCategories", "../../patchwork/enum/ModuleTypes"], function (require, exports, AttributeTypes_1, ModuleCategories_1, ModuleTypes_1) {
     "use strict";
     class CodeGenerator {
         static getStringForModuleRemoved(module) {
@@ -130,8 +130,8 @@ define(["require", "exports", "../../patchwork/enum/AttributeTypes", "../../patc
             if (apiConnections.length > 0) {
                 var done = [];
                 for (var i = 0; i < apiConnections.length; i++) {
-                    var connection = apiConnections[i];
-                    if (!Utils_1.connectionIsInList(connection, done)) {
+                    let connection = apiConnections[i];
+                    if (!connection.isInList(done)) {
                         code.push(this.getStringForConnectionAdded(connection));
                         done.push(connection);
                     }

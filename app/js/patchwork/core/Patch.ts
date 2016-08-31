@@ -7,32 +7,29 @@ import ModuleDefinitions from "../config/ModuleDefinitions";
 import Module from "./Module";
 import ModuleTypes from "../enum/ModuleTypes";
 import ModuleEvent from "../event/ModuleEvent";
+import IModuleDefinition from "../config/IModuleDefinition";
 
 class Patch extends EventDispatcher
 {
 	public static ID_COUNT_SEPARATOR = '_'; // todo private?
 	public static ID_SUBPATCH_SEPARATOR = '$';
 
-	public parentModule:any;
+	public parentModule:Module;
 	public audioContext:AudioContext;
-	public modules:Array<any>;
+	public modules:Array<Module> = [];
 	public connections:Array<Connection> = [];
-	public countsByType = {};
+	public countsByType:{[type:string]: number} = {};
 	public audioContextManager:AudioContextManager;
 	public subPatchEventHandler:any;
 	public moduleEventHandler:any;
-	public bufferManager:any;
+	public bufferManager:BufferManager;
 	
-	constructor(audioContext:AudioContext, parentModule?:any) // todo type
+	constructor(audioContext:AudioContext, parentModule?:Module) // todo type
 	{
 		super();
 
-		if(!audioContext) console.error('Cannot create patch without an AudioContext');
-
 		this.parentModule = parentModule;
 		this.audioContext = audioContext;
-
-		this.modules = [];
 
 		if(!parentModule)
 		{
@@ -50,11 +47,11 @@ class Patch extends EventDispatcher
 
 	public removeConnection(connectionToRemove:Connection):void
 	{
-		var index = this.connections.indexOf(connectionToRemove);
+		let index:number = this.connections.indexOf(connectionToRemove);
 
 		if(index >= 0)
 		{
-			// event before removing, so the ACM can still figure out what connections are involved
+			// dispatch event *before* removing, so the ACM can still figure out what connections are involved
 			this.dispatchEvent(PatchEvent.CONNECTION_PRE_REMOVE, {connection: connectionToRemove});
 
 			this.connections.splice(index, 1);
@@ -70,7 +67,7 @@ class Patch extends EventDispatcher
 		}
 	}
 
-	public addModuleByType(moduleType, args?, moduleObject?):Module // moduleObject is passed when parsing a full patch json
+	public addModuleByType(moduleType:string, moduleArguments?:Array<any>, moduleObject?:any):Module // moduleObject is passed when parsing a full patch json todo type
 	{
 		if(!moduleType)
 		{
@@ -78,7 +75,7 @@ class Patch extends EventDispatcher
 			return;
 		}
 
-		var definition = ModuleDefinitions.findByType(moduleType);
+		let definition:IModuleDefinition = ModuleDefinitions.findByType(moduleType);
 
 		//console.log('addModuleByType', moduleType);
 
@@ -91,10 +88,10 @@ class Patch extends EventDispatcher
 			this.countsByType[moduleType]++;
 
 			// get the id of the module (module data, containing a saved id is given when loading a patch)
-			var moduleId = moduleObject ? moduleObject.id : moduleType + Patch.ID_COUNT_SEPARATOR + this.countsByType[moduleType];
+			let moduleId:string = moduleObject ? moduleObject.id : moduleType + Patch.ID_COUNT_SEPARATOR + this.countsByType[moduleType];
 
 			// create the module TODO try/catch this all and make sure the id doesnt get incremented if all fails
-			var module = new Module(this, definition, moduleId, args);
+			let module:Module = new Module(this, definition, moduleId, moduleArguments);
 			this.modules.push(module);
 
 			// if the module was loaded, set the position as well (so the visualmodule doesnt set to default startposition)
@@ -106,7 +103,7 @@ class Patch extends EventDispatcher
 			// if it was a subpatch, we need to give it a new patch
 			if(definition.type === ModuleTypes.SUBPATCH)
 			{
-				var subPatch = new Patch(this.audioContext, module);
+				let subPatch = new Patch(this.audioContext, module);
 
 				// listen to subpatch events. should be done BEFORE setting the subpatch, so that when loaded, the events from adding nested modules
 				// are caught and the ACM can set the audionode
@@ -133,7 +130,7 @@ class Patch extends EventDispatcher
 			this.addEventListenersToModule(module);
 
 			// notify ACM (audionode gets set in this module) and the editor (visual module is created)
-			this.dispatchEvent(PatchEvent.MODULE_ADDED, {module: module, args: args});
+			this.dispatchEvent(PatchEvent.MODULE_ADDED, {module: module, args: moduleArguments});
 
 			// after event has been dispatched, set the values (so there is a node to set the values on and the visual module can update its values)
 			if(moduleObject) module.setAttributesByLoadedObject(moduleObject);
@@ -142,28 +139,28 @@ class Patch extends EventDispatcher
 		}
 		else
 		{
-			console.error('No module definition found for id: ' + moduleId);
+			console.error('No module definition found for type: ' + moduleType);
 		}
 	}
 
-	public handleModuleEvent(type, data):void
+	public handleModuleEvent(type:string, data:any):void
 	{
 		// dispatch as new (patch) event, so it bubbles up to the root (has exacty the same data as the ModuleEvent, but we dispatch a PatchEvent for consistency)
 		// TODO switch on type, even though there is only type one now
 		this.dispatchEvent(PatchEvent.MODULE_ATTRIBUTE_CHANGED, {module: data.module, attribute: data.attribute});
 	}
 
-	public addEventListenersToModule(module):void
+	public addEventListenersToModule(module:Module):void
 	{
 		module.addEventListener(ModuleEvent.ATTRIBUTE_CHANGED, this.moduleEventHandler);
 	}
 
-	public removeEventListenersFromModule(module):void
+	public removeEventListenersFromModule(module:Module):void
 	{
 		module.removeEventListener(ModuleEvent.ATTRIBUTE_CHANGED, this.moduleEventHandler);
 	}
 
-	public addEventListenersToSubPatch(subPatch):void
+	public addEventListenersToSubPatch(subPatch:Patch):void
 	{
 		subPatch.addEventListener(PatchEvent.MODULE_ADDED, this.subPatchEventHandler);
 		subPatch.addEventListener(PatchEvent.MODULE_REMOVED, this.subPatchEventHandler);
