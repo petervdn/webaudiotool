@@ -7,6 +7,6 @@ requirejs.config({
     map: {},
     shim: {}
 });
-requirejs(['Main'], function (Main) {
+requirejs(['Main'], (Main) => {
     console.log('Main!', Main);
 });

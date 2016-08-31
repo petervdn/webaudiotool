@@ -25,3 +25,4 @@ var VisualBuffer = (function () {
 }());
 exports.__esModule = true;
 exports["default"] = VisualBuffer;
+//# sourceMappingURL=VisualBuffer.js.map

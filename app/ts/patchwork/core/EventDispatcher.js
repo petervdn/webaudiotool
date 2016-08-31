@@ -52,3 +52,4 @@ var EventDispatcher = (function () {
 }());
 exports.__esModule = true;
 exports["default"] = EventDispatcher;
+//# sourceMappingURL=EventDispatcher.js.map

@@ -13,6 +13,11 @@ import Header from "./Header";
 import HeaderEvent from "./event/HeaderEvent";
 import VisualModuleEvent from "./event/VisualModuleEvent";
 import Module from "../patchwork/core/Module";
+import Tracking from "./net/Tracking";
+import PatchEvent from "../patchwork/event/PatchEvent";
+import VisualModule from "./patch/VisualModule";
+import ModuleDefinitions from "../patchwork/config/ModuleDefinitions";
+import EditorUtils from "../../js/patchwork/util/EditorUtils";
 
 declare var $:any;
 
@@ -38,6 +43,9 @@ class Editor
 	public visualModules:Array<any>;
 	public $fileInput:any;
 	public patch:Patch;
+	public startScreenDragPoint:IPoint;
+	public patchEventHandler:any;
+	public connectionCreationData:any;
 
 	constructor(audioContext)
 	{
@@ -47,8 +55,8 @@ class Editor
 
 		// some stuff in footer
 		this.viewCode = new ViewCode(startPatch);
-		this.help = new Help();
-		this.share = new Share();
+		this.help = new Help(startPatch);
+		this.share = new Share(startPatch);
 		this.liveCode = new LiveCode(startPatch);
 
 		// buffer
@@ -102,7 +110,8 @@ class Editor
 			if(files.length === 1)
 			{
 				var reader = new FileReader();
-				reader.onload = function(event) {
+				reader.onload = function(event)
+				{
 					this.patch.loadPatch(reader.result);
 				}.bind(this);
 
@@ -258,7 +267,7 @@ class Editor
 				if(event.altKey)
 				{
 					// store startpoint
-					this.startScreenDragPoint = new Point(event.clientX, event.clientY);
+					this.startScreenDragPoint = {x: event.clientX, y: event.clientY};
 
 					// listen for move and mouseup events
 					this.$drawArea.on('mousemove', this.screenDragMouseMoveHandler);
@@ -269,7 +278,10 @@ class Editor
 			case 'mousemove':
 			{
 				//console.log(this.startScreenDragPoint);
-				var move = new Point(event.clientX - this.startScreenDragPoint.x, event.clientY - this.startScreenDragPoint.y);
+				var move = {
+					x: event.clientX - this.startScreenDragPoint.x,
+					y: event.clientY - this.startScreenDragPoint.y
+				};
 
 				var moveX = event.originalEvent.movementX || event.originalEvent.mozMovementX || 0;
 				var moveY = event.originalEvent.movementY || event.originalEvent.mozMovementY || 0;
@@ -292,7 +304,8 @@ class Editor
 	public moveViewToOffset():void
 	{
 		// reposition all modules
-		this.visualModules.forEach(function(visualModule) {
+		this.visualModules.forEach(function(visualModule)
+		{
 			visualModule.moveToPosition();
 		});
 
@@ -496,7 +509,8 @@ class Editor
 		// add element to container
 		this.$drawArea.append(visualModule.$element);
 
-		visualModule.$element.on('mousedown', function(event) {
+		visualModule.$element.on('mousedown', function(event)
+		{
 
 			if(EditorUtils.elementIsTransput(event.target))
 			{
@@ -517,7 +531,7 @@ class Editor
 		this.addVisualModuleEventHandlers(visualModule);
 	}
 
-	Editor.prototype.handleAddModuleClick = function(event)
+	public  handleAddModuleClick(event):void
 	{
 		var moduleType = event.target.dataset.type;
 
@@ -536,7 +550,7 @@ class Editor
 		this.patch.addModuleByType(moduleType, args);
 	}
 
-	Editor.prototype.clearConnectionCreationData = function()
+	public clearConnectionCreationData():void
 	{
 		this.connectionCreationData = {source: null, destination: null};
 
@@ -544,12 +558,11 @@ class Editor
 		this.connectionsCanvas.connectionCreationData = null;
 	}
 
-	Editor.prototype.setConnectionCreationDataByTransputElement = function(transput)
+	public setConnectionCreationDataByTransputElement(transput):void
 	{
 		var moduleId = EditorUtils.getModuleIdByTransputElement(transput);
 		var transputIndex = transput.dataset.index || null;
 		var audioParamId = transput.dataset.audioparam || null;
-
 
 		// convert from string to number
 		if(transputIndex) transputIndex = parseInt(transputIndex);
@@ -577,14 +590,12 @@ class Editor
 
 	}
 
-
-
-	Editor.prototype.handleConnectionCreationMouseMove = function(event)
+	public handleConnectionCreationMouseMove(event):void
 	{
 		this.connectionsCanvas.drawWithCreation(this.patch, event.pageX, event.pageY);
 	}
 
-	Editor.prototype.handleConnectionCreationMouseUp = function(event)
+	public handleConnectionCreationMouseUp(event):void
 	{
 		document.removeEventListener('mouseup', this.connectionCreationMouseUpHandler);
 		document.removeEventListener('mousemove', this.connectionCreationMouseMoveHandler);
@@ -605,7 +616,7 @@ class Editor
 				);
 
 				// redraw on fail, so the connectioncreation line should be removed (by redrawing)
-				if(!success) this.connectionsCanvas.draw();
+				if(!success) this.connectionsCanvas.draw(null);  // todo i dont think this does anything without any param
 
 			}
 			else
@@ -623,3 +634,6 @@ class Editor
 
 		this.clearConnectionCreationData();
 	}
+}
+
+export default Editor;

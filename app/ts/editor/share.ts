@@ -8,6 +8,7 @@ class Share extends AbstractOverlayElement // todo rename file
     public $button:any;
     public $error;
     public $textfield;
+    public patch:Patch;
 
     constructor(patch:Patch)
     {

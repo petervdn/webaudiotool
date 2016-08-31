@@ -14,3 +14,4 @@ var AttributeTypes = (function () {
 }());
 exports.__esModule = true;
 exports["default"] = AttributeTypes;
+//# sourceMappingURL=AttributeTypes.js.map

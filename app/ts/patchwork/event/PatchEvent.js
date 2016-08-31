@@ -13,3 +13,4 @@ var PatchEvent = (function () {
 }());
 exports.__esModule = true;
 exports["default"] = PatchEvent;
+//# sourceMappingURL=PatchEvent.js.map

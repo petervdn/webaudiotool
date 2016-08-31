@@ -7,3 +7,4 @@ var HeaderEvent = (function () {
 }());
 exports.__esModule = true;
 exports["default"] = HeaderEvent;
+//# sourceMappingURL=HeaderEvent.js.map

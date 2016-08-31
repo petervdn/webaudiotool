@@ -21,7 +21,7 @@ class ConnectionsCanvas extends EventDispatcher
     public width:number;
     public height:number;
 
-    constructor(patch:Patch, viewOffset:IPoint)
+    constructor(viewOffset:IPoint)
     {
         super();
 

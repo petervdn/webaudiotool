@@ -12,80 +12,19 @@ var ConnectionsCanvasEvent_1 = require("./event/ConnectionsCanvasEvent");
 var Header_1 = require("./Header");
 var HeaderEvent_1 = require("./event/HeaderEvent");
 var VisualModuleEvent_1 = require("./event/VisualModuleEvent");
+var Tracking_1 = require("./net/Tracking");
+var PatchEvent_1 = require("../patchwork/event/PatchEvent");
+var VisualModule_1 = require("./patch/VisualModule");
+var ModuleDefinitions_1 = require("../patchwork/config/ModuleDefinitions");
+var EditorUtils_1 = require("../../js/patchwork/util/EditorUtils");
 var Editor = (function () {
     function Editor(audioContext) {
-        this.handleAddModuleClick = function (event) {
-            var moduleType = event.target.dataset.type;
-            var definition = ModuleDefinitions.findByType(moduleType);
-            var args = [];
-            if (definition.args) {
-                // node needs constructor arguments
-                for (var i = 0; i < definition.args.length; i++) {
-                    args.push(prompt(definition.args[i].label));
-                }
-            }
-            this.patch.addModuleByType(moduleType, args);
-        };
-        this.clearConnectionCreationData = function () {
-            this.connectionCreationData = { source: null, destination: null };
-            // set also in the connection canvas, so it can draw a connection while it's being created
-            this.connectionsCanvas.connectionCreationData = null;
-        };
-        this.setConnectionCreationDataByTransputElement = function (transput) {
-            var moduleId = EditorUtils.getModuleIdByTransputElement(transput);
-            var transputIndex = transput.dataset.index || null;
-            var audioParamId = transput.dataset.audioparam || null;
-            // convert from string to number
-            if (transputIndex)
-                transputIndex = parseInt(transputIndex);
-            var data = { moduleId: moduleId, transputIndex: transputIndex, audioParamId: audioParamId };
-            if (EditorUtils.elementIsInput(transput)) {
-                this.connectionCreationData.destination = data;
-            }
-            else if (EditorUtils.elementIsOutput(transput)) {
-                this.connectionCreationData.source = data;
-            }
-            else {
-                console.error('Element is no input or output'); // TODO remove?
-            }
-            // give creation data to canvas (so it can draw during dragging a new connection)
-            this.connectionsCanvas.connectionCreationData = this.connectionCreationData;
-            // console.log('source: ', this.connectionCreationData.source);
-            // console.log('destination: ', this.connectionCreationData.destination);
-        };
-        this.handleConnectionCreationMouseMove = function (event) {
-            this.connectionsCanvas.drawWithCreation(this.patch, event.pageX, event.pageY);
-        };
-        this.handleConnectionCreationMouseUp = function (event) {
-            document.removeEventListener('mouseup', this.connectionCreationMouseUpHandler);
-            document.removeEventListener('mousemove', this.connectionCreationMouseMoveHandler);
-            if ((EditorUtils.elementIsInput(event.target) && this.connectionCreationData.source) ||
-                (EditorUtils.elementIsOutput(event.target) && this.connectionCreationData.destination)) {
-                this.setConnectionCreationDataByTransputElement(event.target);
-                // both source and destination should be filled now, create the connection
-                if (this.connectionCreationData.source && this.connectionCreationData.destination) {
-                    var success = this.patch.addConnection(this.connectionCreationData.source.moduleId, this.connectionCreationData.source.transputIndex, this.connectionCreationData.destination.moduleId, this.connectionCreationData.destination.transputIndex);
-                    // redraw on fail, so the connectioncreation line should be removed (by redrawing)
-                    if (!success)
-                        this.connectionsCanvas.draw();
-                }
-                else {
-                    console.error('Source and/or destination not filled', this.connectionCreationData);
-                }
-            }
-            else {
-                console.log('invalid connection');
-                // do a redraw, so the creation-line disappears
-                this.connectionsCanvas.draw(this.patch);
-            }
-            this.clearConnectionCreationData();
-        };
         var startPatch = new Patch_1["default"](audioContext); // TODO rename startPatch to patch
         this.viewOffset = { x: 0, y: 0 };
         // some stuff in footer
         this.viewCode = new ViewCode_1["default"](startPatch);
-        this.help = new Help_1["default"]();
-        this.share = new share_1["default"]();
+        this.help = new Help_1["default"](startPatch);
+        this.share = new share_1["default"](startPatch);
         this.liveCode = new LiveCode_1["default"](startPatch);
         // buffer
         this.bufferList = new BufferList_1["default"](startPatch.bufferManager);
@@ -245,7 +184,7 @@ var Editor = (function () {
                 {
                     if (event.altKey) {
                         // store startpoint
-                        this.startScreenDragPoint = new Point(event.clientX, event.clientY);
+                        this.startScreenDragPoint = { x: event.clientX, y: event.clientY };
                         // listen for move and mouseup events
                         this.$drawArea.on('mousemove', this.screenDragMouseMoveHandler);
                         this.$drawArea.on('mouseup', this.screenDragMouseUpHandler);
@@ -255,7 +194,10 @@ var Editor = (function () {
             case 'mousemove':
                 {
                     //console.log(this.startScreenDragPoint);
-                    var move = new Point(event.clientX - this.startScreenDragPoint.x, event.clientY - this.startScreenDragPoint.y);
+                    var move = {
+                        x: event.clientX - this.startScreenDragPoint.x,
+                        y: event.clientY - this.startScreenDragPoint.y
+                    };
                     var moveX = event.originalEvent.movementX || event.originalEvent.mozMovementX || 0;
                     var moveY = event.originalEvent.movementY || event.originalEvent.mozMovementY || 0;
                     this.viewOffset.x -= moveX;
@@ -289,14 +231,14 @@ var Editor = (function () {
                 }
             case VisualModuleEvent_1["default"].REMOVE:
                 {
-                    Tracking.trackEvent('visual_module', 'remove');
+                    Tracking_1["default"].trackEvent('visual_module', 'remove');
                     this.patch.removeModuleById(data.moduleId);
                     break;
                 }
             case VisualModuleEvent_1["default"].OPEN_SUBPATCH:
                 {
                     this.setPatch(data.module.subPatch);
-                    Tracking.trackEvent('visual_module', 'open_subpatch');
+                    Tracking_1["default"].trackEvent('visual_module', 'open_subpatch');
                     break;
                 }
             case VisualModuleEvent_1["default"].ATTRIBUTE_CHANGED:
@@ -325,22 +267,22 @@ var Editor = (function () {
     Editor.prototype.addPatchEventListeners = function (patch) {
         if (!this.patchEventHandler)
             this.patchEventHandler = this.handlePatchEvent.bind(this);
-        patch.addEventListener(PatchEvent.MODULE_ADDED, this.patchEventHandler);
-        patch.addEventListener(PatchEvent.MODULE_REMOVED, this.patchEventHandler);
-        patch.addEventListener(PatchEvent.CONNECTION_ADDED, this.patchEventHandler);
-        patch.addEventListener(PatchEvent.CONNECTION_PRE_REMOVE, this.patchEventHandler);
-        patch.addEventListener(PatchEvent.CONNECTION_POST_REMOVE, this.patchEventHandler);
-        patch.addEventListener(PatchEvent.PATCH_CLEARED, this.patchEventHandler);
+        patch.addEventListener(PatchEvent_1["default"].MODULE_ADDED, this.patchEventHandler);
+        patch.addEventListener(PatchEvent_1["default"].MODULE_REMOVED, this.patchEventHandler);
+        patch.addEventListener(PatchEvent_1["default"].CONNECTION_ADDED, this.patchEventHandler);
+        patch.addEventListener(PatchEvent_1["default"].CONNECTION_PRE_REMOVE, this.patchEventHandler);
+        patch.addEventListener(PatchEvent_1["default"].CONNECTION_POST_REMOVE, this.patchEventHandler);
+        patch.addEventListener(PatchEvent_1["default"].PATCH_CLEARED, this.patchEventHandler);
         //patch.addEventListener(PatchEvent.MODULE_ATTRIBUTE_CHANGED, this.patchEventHandler);
     };
     Editor.prototype.removePatchEventListeners = function (patch) {
         // remove patch events
-        patch.removeEventListener(PatchEvent.MODULE_ADDED, this.patchEventHandler);
-        patch.removeEventListener(PatchEvent.MODULE_REMOVED, this.patchEventHandler);
-        patch.removeEventListener(PatchEvent.CONNECTION_ADDED, this.patchEventHandler);
-        patch.removeEventListener(PatchEvent.CONNECTION_PRE_REMOVE, this.patchEventHandler);
-        patch.removeEventListener(PatchEvent.CONNECTION_POST_REMOVE, this.patchEventHandler);
-        patch.removeEventListener(PatchEvent.PATCH_CLEARED, this.patchEventHandler);
+        patch.removeEventListener(PatchEvent_1["default"].MODULE_ADDED, this.patchEventHandler);
+        patch.removeEventListener(PatchEvent_1["default"].MODULE_REMOVED, this.patchEventHandler);
+        patch.removeEventListener(PatchEvent_1["default"].CONNECTION_ADDED, this.patchEventHandler);
+        patch.removeEventListener(PatchEvent_1["default"].CONNECTION_PRE_REMOVE, this.patchEventHandler);
+        patch.removeEventListener(PatchEvent_1["default"].CONNECTION_POST_REMOVE, this.patchEventHandler);
+        patch.removeEventListener(PatchEvent_1["default"].PATCH_CLEARED, this.patchEventHandler);
         //patch.removeEventListener(PatchEvent.MODULE_ATTRIBUTE_CHANGED, this.patchEventHandler);
     };
     Editor.prototype.download = function (filename, text) {
@@ -351,7 +293,7 @@ var Editor = (function () {
     };
     Editor.prototype.handlePatchEvent = function (type, data) {
         switch (type) {
-            case PatchEvent.MODULE_ADDED:
+            case PatchEvent_1["default"].MODULE_ADDED:
                 {
                     // only add if the added module is in the currently visible patch
                     if (data.module.parentPatch === this.patch) {
@@ -359,30 +301,30 @@ var Editor = (function () {
                     }
                     break;
                 }
-            case PatchEvent.MODULE_REMOVED:
+            case PatchEvent_1["default"].MODULE_REMOVED:
                 {
                     this.removeVisualModuleById(data.module.id);
                     this.connectionsCanvas.draw(this.patch);
                     break;
                 }
-            case PatchEvent.CONNECTION_ADDED:
+            case PatchEvent_1["default"].CONNECTION_ADDED:
                 {
                     this.connectionsCanvas.draw(this.patch);
-                    Tracking.trackEvent('connection', 'added');
+                    Tracking_1["default"].trackEvent('connection', 'added');
                     break;
                 }
-            case PatchEvent.CONNECTION_PRE_REMOVE:
+            case PatchEvent_1["default"].CONNECTION_PRE_REMOVE:
                 {
                     // does nothing
                     break;
                 }
-            case PatchEvent.CONNECTION_POST_REMOVE:
+            case PatchEvent_1["default"].CONNECTION_POST_REMOVE:
                 {
                     this.connectionsCanvas.draw(this.patch);
-                    Tracking.trackEvent('connection', 'removed');
+                    Tracking_1["default"].trackEvent('connection', 'removed');
                     break;
                 }
-            case PatchEvent.PATCH_CLEARED:
+            case PatchEvent_1["default"].PATCH_CLEARED:
                 {
                     // TODO reset viewport
                     break;
@@ -431,7 +373,7 @@ var Editor = (function () {
         }
     };
     Editor.prototype.addVisualModule = function (module) {
-        var visualModule = new VisualModule(module, this.viewOffset);
+        var visualModule = new VisualModule_1["default"](module, this.viewOffset);
         this.visualModules.push(visualModule);
         // set to a default position, unless the module already has one (in loaded patches the modules have positions)
         var defaultPosition = module.position ? module.position : { x: 300, y: 200 };
@@ -439,7 +381,7 @@ var Editor = (function () {
         // add element to container
         this.$drawArea.append(visualModule.$element);
         visualModule.$element.on('mousedown', function (event) {
-            if (EditorUtils.elementIsTransput(event.target)) {
+            if (EditorUtils_1["default"].elementIsTransput(event.target)) {
                 // mousedown on input or output, store the connectioncreation data
                 this.setConnectionCreationDataByTransputElement(event.target);
                 // prevent cursor from changing into textthingie
@@ -452,5 +394,74 @@ var Editor = (function () {
         // listen for events
         this.addVisualModuleEventHandlers(visualModule);
     };
+    Editor.prototype.handleAddModuleClick = function (event) {
+        var moduleType = event.target.dataset.type;
+        var definition = ModuleDefinitions_1["default"].findByType(moduleType);
+        var args = [];
+        if (definition.args) {
+            // node needs constructor arguments
+            for (var i = 0; i < definition.args.length; i++) {
+                args.push(prompt(definition.args[i].label));
+            }
+        }
+        this.patch.addModuleByType(moduleType, args);
+    };
+    Editor.prototype.clearConnectionCreationData = function () {
+        this.connectionCreationData = { source: null, destination: null };
+        // set also in the connection canvas, so it can draw a connection while it's being created
+        this.connectionsCanvas.connectionCreationData = null;
+    };
+    Editor.prototype.setConnectionCreationDataByTransputElement = function (transput) {
+        var moduleId = EditorUtils_1["default"].getModuleIdByTransputElement(transput);
+        var transputIndex = transput.dataset.index || null;
+        var audioParamId = transput.dataset.audioparam || null;
+        // convert from string to number
+        if (transputIndex)
+            transputIndex = parseInt(transputIndex);
+        var data = { moduleId: moduleId, transputIndex: transputIndex, audioParamId: audioParamId };
+        if (EditorUtils_1["default"].elementIsInput(transput)) {
+            this.connectionCreationData.destination = data;
+        }
+        else if (EditorUtils_1["default"].elementIsOutput(transput)) {
+            this.connectionCreationData.source = data;
+        }
+        else {
+            console.error('Element is no input or output'); // TODO remove?
+        }
+        // give creation data to canvas (so it can draw during dragging a new connection)
+        this.connectionsCanvas.connectionCreationData = this.connectionCreationData;
+        // console.log('source: ', this.connectionCreationData.source);
+        // console.log('destination: ', this.connectionCreationData.destination);
+    };
+    Editor.prototype.handleConnectionCreationMouseMove = function (event) {
+        this.connectionsCanvas.drawWithCreation(this.patch, event.pageX, event.pageY);
+    };
+    Editor.prototype.handleConnectionCreationMouseUp = function (event) {
+        document.removeEventListener('mouseup', this.connectionCreationMouseUpHandler);
+        document.removeEventListener('mousemove', this.connectionCreationMouseMoveHandler);
+        if ((EditorUtils_1["default"].elementIsInput(event.target) && this.connectionCreationData.source) ||
+            (EditorUtils_1["default"].elementIsOutput(event.target) && this.connectionCreationData.destination)) {
+            this.setConnectionCreationDataByTransputElement(event.target);
+            // both source and destination should be filled now, create the connection
+            if (this.connectionCreationData.source && this.connectionCreationData.destination) {
+                var success = this.patch.addConnection(this.connectionCreationData.source.moduleId, this.connectionCreationData.source.transputIndex, this.connectionCreationData.destination.moduleId, this.connectionCreationData.destination.transputIndex);
+                // redraw on fail, so the connectioncreation line should be removed (by redrawing)
+                if (!success)
+                    this.connectionsCanvas.draw(null); // todo i dont think this does anything without any param
+            }
+            else {
+                console.error('Source and/or destination not filled', this.connectionCreationData);
+            }
+        }
+        else {
+            console.log('invalid connection');
+            // do a redraw, so the creation-line disappears
+            this.connectionsCanvas.draw(this.patch);
+        }
+        this.clearConnectionCreationData();
+    };
     return Editor;
 }());
+exports.__esModule = true;
+exports["default"] = Editor;
+//# sourceMappingURL=Editor.js.map

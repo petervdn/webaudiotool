@@ -298,3 +298,4 @@ var Module = (function (_super) {
 }(EventDispatcher_1["default"]));
 exports.__esModule = true;
 exports["default"] = Module;
+//# sourceMappingURL=Module.js.map

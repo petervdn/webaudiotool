@@ -27,3 +27,4 @@ var BufferManager = (function (_super) {
 }(EventDispatcher_1["default"]));
 exports.__esModule = true;
 exports["default"] = BufferManager;
+//# sourceMappingURL=BufferManager.js.map

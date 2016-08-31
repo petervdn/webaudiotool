@@ -1,3 +1,3 @@
 define({
-	LOADED: 'BufferEvent.LOADED';
+	LOADED: 'BufferEvent.LOADED'
 });

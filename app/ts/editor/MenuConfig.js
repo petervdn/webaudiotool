@@ -42,3 +42,4 @@ var MenuConfig = (function () {
 }());
 exports.__esModule = true;
 exports["default"] = MenuConfig;
+//# sourceMappingURL=MenuConfig.js.map

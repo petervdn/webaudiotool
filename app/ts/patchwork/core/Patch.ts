@@ -23,7 +23,7 @@ class Patch extends EventDispatcher
 	public moduleEventHandler:any;
 	public bufferManager:any;
 	
-	constructor(audioContext:AudioContext, parentModule:any) // todo type
+	constructor(audioContext:AudioContext, parentModule?:any) // todo type
 	{
 		super();
 

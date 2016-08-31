@@ -8,3 +8,4 @@ var BufferManagerEvent = (function () {
 }());
 exports.__esModule = true;
 exports["default"] = BufferManagerEvent;
+//# sourceMappingURL=BufferManagerEvent.js.map

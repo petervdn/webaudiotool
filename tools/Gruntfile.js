@@ -5,8 +5,8 @@ module.exports = function(grunt) {
 		{
 			ts: {
 				base: {
-					//src: ['../app/**/*.ts'],
-					src: ['../app/ts/editor/code/CodeGenerator.ts'],
+					src: ['../app/**/*.ts'],
+					//src: ['../app/ts/editor/code/CodeGenerator.ts'],
 					dest: '',
 					options: {
 						module: 'amd',

@@ -289,7 +289,7 @@ class Module extends EventDispatcher
 		}
 	}
 
-	public getAudioParams():any
+	public getAudioParams():Array<any>
 	{
 		var results = [];
 

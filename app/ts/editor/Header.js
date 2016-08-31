@@ -94,3 +94,4 @@ var Header = (function (_super) {
 }(EventDispatcher_1["default"]));
 exports.__esModule = true;
 exports["default"] = Header;
+//# sourceMappingURL=Header.js.map

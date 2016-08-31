@@ -7,3 +7,4 @@ var Buffer = (function () {
 }());
 exports.__esModule = true;
 exports["default"] = Buffer;
+//# sourceMappingURL=Buffer.js.map

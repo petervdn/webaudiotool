@@ -9,7 +9,7 @@ var ConnectionsSelectionGrid_1 = require("./ConnectionsSelectionGrid");
 var ConnectionsCanvasEvent_1 = require("../event/ConnectionsCanvasEvent");
 var ConnectionsCanvas = (function (_super) {
     __extends(ConnectionsCanvas, _super);
-    function ConnectionsCanvas(patch, viewOffset) {
+    function ConnectionsCanvas(viewOffset) {
         _super.call(this);
         this.drawDebugSelectionGrid = false; // draws the connection selection grid
         this.connectionMouseOverIndex = -1;
@@ -266,3 +266,4 @@ var ConnectionsCanvas = (function (_super) {
 }(EventDispatcher_1["default"]));
 exports.__esModule = true;
 exports["default"] = ConnectionsCanvas;
+//# sourceMappingURL=ConnectionsCanvas.js.map
