@@ -343,4 +343,3 @@ var VisualModule = (function (_super) {
 }(EventDispatcher_1["default"]));
 exports.__esModule = true;
 exports["default"] = VisualModule;
-//# sourceMappingURL=VisualModule.js.map

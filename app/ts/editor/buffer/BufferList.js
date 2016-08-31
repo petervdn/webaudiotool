@@ -41,4 +41,3 @@ var BufferList = (function () {
 }());
 exports.__esModule = true;
 exports["default"] = BufferList;
-//# sourceMappingURL=BufferList.js.map

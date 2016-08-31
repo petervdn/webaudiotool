@@ -93,4 +93,3 @@ var Connection = (function () {
 }());
 exports.__esModule = true;
 exports["default"] = Connection;
-//# sourceMappingURL=Connection.js.map

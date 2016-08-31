@@ -63,4 +63,3 @@ var ConnectionsSelectionGrid = (function () {
 }());
 exports.__esModule = true;
 exports["default"] = ConnectionsSelectionGrid;
-//# sourceMappingURL=ConnectionsSelectionGrid.js.map

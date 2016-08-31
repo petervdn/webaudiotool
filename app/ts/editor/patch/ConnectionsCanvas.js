@@ -266,4 +266,3 @@ var ConnectionsCanvas = (function (_super) {
 }(EventDispatcher_1["default"]));
 exports.__esModule = true;
 exports["default"] = ConnectionsCanvas;
-//# sourceMappingURL=ConnectionsCanvas.js.map

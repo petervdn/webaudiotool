@@ -50,4 +50,3 @@ var Footer = (function (_super) {
 }(EventDispatcher_1["default"]));
 exports.__esModule = true;
 exports["default"] = Footer;
-//# sourceMappingURL=Footer.js.map

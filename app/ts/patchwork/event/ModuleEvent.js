@@ -7,4 +7,3 @@ var ModuleEvent = (function () {
 }());
 exports.__esModule = true;
 exports["default"] = ModuleEvent;
-//# sourceMappingURL=ModuleEvent.js.map

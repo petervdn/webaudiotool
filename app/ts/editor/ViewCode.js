@@ -25,4 +25,3 @@ var ViewCode = (function (_super) {
 }(AbstractOverlayElement_1["default"]));
 exports.__esModule = true;
 exports["default"] = ViewCode;
-//# sourceMappingURL=ViewCode.js.map

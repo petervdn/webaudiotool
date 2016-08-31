@@ -10,4 +10,3 @@ var FooterEvent = (function () {
 }());
 exports.__esModule = true;
 exports["default"] = FooterEvent;
-//# sourceMappingURL=FooterEvent.js.map

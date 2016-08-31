@@ -25,4 +25,3 @@ var AbstractOverlayElement = (function () {
 }());
 exports.__esModule = true;
 exports["default"] = AbstractOverlayElement;
-//# sourceMappingURL=AbstractOverlayElement.js.map

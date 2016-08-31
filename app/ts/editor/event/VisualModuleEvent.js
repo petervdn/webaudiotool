@@ -10,4 +10,3 @@ var VisualModuleEvent = (function () {
 }());
 exports.__esModule = true;
 exports["default"] = VisualModuleEvent;
-//# sourceMappingURL=VisualModuleEvent.js.map

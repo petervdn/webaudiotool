@@ -464,4 +464,3 @@ var Editor = (function () {
 }());
 exports.__esModule = true;
 exports["default"] = Editor;
-//# sourceMappingURL=Editor.js.map

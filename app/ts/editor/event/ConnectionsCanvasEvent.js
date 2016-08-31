@@ -7,4 +7,3 @@ var ConnectionsCanvasEvent = (function () {
 }());
 exports.__esModule = true;
 exports["default"] = ConnectionsCanvasEvent;
-//# sourceMappingURL=ConnectionsCanvasEvent.js.map

@@ -8,4 +8,3 @@ var ModuleCategories = (function () {
 }());
 exports.__esModule = true;
 exports["default"] = ModuleCategories;
-//# sourceMappingURL=ModuleCategories.js.map
