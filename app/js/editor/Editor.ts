@@ -16,8 +16,9 @@ import Tracking from "./net/Tracking";
 import PatchEvent from "../patchwork/event/PatchEvent";
 import VisualModule from "./patch/VisualModule";
 import ModuleDefinitions from "../patchwork/config/ModuleDefinitions";
-import EditorUtils from "../../js/patchwork/util/EditorUtils";
 import Patch from "../patchwork/core/Patch";
+import EditorUtils from "./util/EditorUtils";
+
 
 declare var $:any;
 
@@ -51,7 +52,7 @@ class Editor
 	{
 		var startPatch = new Patch(audioContext); // TODO rename startPatch to patch
 
-		this.viewOffset = {x: 0, y: 0}
+		this.viewOffset = {x: 0, y: 0};
 
 		// some stuff in footer
 		this.viewCode = new ViewCode(startPatch);
@@ -587,7 +588,6 @@ class Editor
 
 		// console.log('source: ', this.connectionCreationData.source);
 		// console.log('destination: ', this.connectionCreationData.destination);
-
 	}
 
 	public handleConnectionCreationMouseMove(event):void

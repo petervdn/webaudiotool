@@ -6,8 +6,6 @@
 	<head>
 		<title>Web Audio Tool</title>
 
-		<script src="js/lib/require.js"></script>
-
 		<?php
 		echo '<link rel="stylesheet" type="text/css" href="css/style.css?v=' . $v . "\">\n";
 		echo '<link rel="stylesheet" type="text/css" href="css/code.css?v=' . $v . "\">\n";
@@ -56,5 +54,6 @@
 		<input type="file" style="display:none" accept=".pw">
     </body>
     <script src="js/lib/require.js"></script>
-    <script src="ts/Bootstrap.js"></script>
+    <script src="js/lib/jquery-1.11.2.js"></script>
+    <script src="js/Bootstrap.js"></script>
 </html>

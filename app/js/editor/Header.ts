@@ -22,9 +22,9 @@ class Header extends EventDispatcher
         this.$menu = this.$header.find('.menu');
 
         // inject the modules into the config
-        this.insertModulesIntoConfig(ModuleCategories.NATIVE, MenuConfig.get().items[1]);
-        this.insertModulesIntoConfig('destination', MenuConfig.get().items[1]);
-        this.insertModulesIntoConfig(ModuleCategories.PROXY, MenuConfig.get().items[2]);
+        this.insertModulesIntoConfig(ModuleCategories.NATIVE, MenuConfig.items[1]);
+        this.insertModulesIntoConfig('destination', MenuConfig.items[1]);
+        this.insertModulesIntoConfig(ModuleCategories.PROXY, MenuConfig.items[2]);
 
         this.createMenu();
     }
@@ -88,9 +88,9 @@ class Header extends EventDispatcher
 
     public createMenu():void
     {
-        for(var i = 0; i < MenuConfig.get().items.length; i++)
+        for(var i = 0; i < MenuConfig.items.length; i++)
         {
-            var item = MenuConfig.get().items[i];
+            var item = MenuConfig.items[i];
 
             var $item = $('<li>').html('<h2>' + item.name + '</h2>');
 

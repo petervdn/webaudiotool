@@ -27,7 +27,7 @@ class Module extends EventDispatcher
 		this.audioNode = null; // set later by the audiocontext manager (listens to added modules)
 		this.args = args; // store constructor arguments, so we can save them in the json
 
-		this.position = null // will be set if a visualmodule is created for it
+		this.position = null; // will be set if a visualmodule is created for it
 		this.subPatch = null; // will be filled if it's a subpatch
 	}
 
