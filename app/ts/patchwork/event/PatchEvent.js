@@ -1,6 +1,6 @@
-"use strict";
-var PatchEvent = (function () {
-    function PatchEvent() {
+define(["require", "exports"], function (require, exports) {
+    "use strict";
+    class PatchEvent {
     }
     PatchEvent.MODULE_ADDED = 'PatchEvent.MODULE_ADDED';
     PatchEvent.MODULE_REMOVED = 'PatchEvent.MODULE_REMOVED';
@@ -9,7 +9,6 @@ var PatchEvent = (function () {
     PatchEvent.CONNECTION_POST_REMOVE = 'PatchEvent.CONNECTION_POST_REMOVE';
     PatchEvent.PATCH_CLEARED = 'PatchEvent.PATCH_CLEARED';
     PatchEvent.MODULE_ATTRIBUTE_CHANGED = 'PatchEvent.MODULE_ATTRIBUTE_CHANGED';
-    return PatchEvent;
-}());
-exports.__esModule = true;
-exports["default"] = PatchEvent;
+    Object.defineProperty(exports, "__esModule", { value: true });
+    exports.default = PatchEvent;
+});

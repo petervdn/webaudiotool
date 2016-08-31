@@ -1,28 +1,27 @@
-"use strict";
-var EditorUtils = (function () {
-    function EditorUtils() {
+define(["require", "exports"], function (require, exports) {
+    "use strict";
+    class EditorUtils {
+        static getModuleIdByRemoveButton(element) {
+            var moduleElement = element.parentNode.parentNode;
+            return moduleElement.dataset.id;
+        }
+        static elementIsRemoveModuleButton(element) {
+            return element.classList.contains('remove');
+        }
+        static elementIsTransput(element) {
+            return (element.classList.contains('input') || element.classList.contains('output'));
+        }
+        static elementIsInput(element) {
+            return element.classList.contains('input');
+        }
+        static elementIsOutput(element) {
+            return element.classList.contains('output');
+        }
+        static getModuleIdByTransputElement(transputElement) {
+            var moduleElement = transputElement.parentNode.parentNode;
+            return moduleElement.dataset.id;
+        }
     }
-    EditorUtils.getModuleIdByRemoveButton = function (element) {
-        var moduleElement = element.parentNode.parentNode;
-        return moduleElement.dataset.id;
-    };
-    EditorUtils.elementIsRemoveModuleButton = function (element) {
-        return element.classList.contains('remove');
-    };
-    EditorUtils.elementIsTransput = function (element) {
-        return (element.classList.contains('input') || element.classList.contains('output'));
-    };
-    EditorUtils.elementIsInput = function (element) {
-        return element.classList.contains('input');
-    };
-    EditorUtils.elementIsOutput = function (element) {
-        return element.classList.contains('output');
-    };
-    EditorUtils.getModuleIdByTransputElement = function (transputElement) {
-        var moduleElement = transputElement.parentNode.parentNode;
-        return moduleElement.dataset.id;
-    };
-    return EditorUtils;
-}());
-exports.__esModule = true;
-exports["default"] = EditorUtils;
+    Object.defineProperty(exports, "__esModule", { value: true });
+    exports.default = EditorUtils;
+});

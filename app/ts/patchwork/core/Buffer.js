@@ -1,9 +1,10 @@
-"use strict";
-var Buffer = (function () {
-    function Buffer(id) {
-        this.id = id;
+define(["require", "exports"], function (require, exports) {
+    "use strict";
+    class Buffer {
+        constructor(id) {
+            this.id = id;
+        }
     }
-    return Buffer;
-}());
-exports.__esModule = true;
-exports["default"] = Buffer;
+    Object.defineProperty(exports, "__esModule", { value: true });
+    exports.default = Buffer;
+});

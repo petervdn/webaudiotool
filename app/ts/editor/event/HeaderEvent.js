@@ -1,9 +1,8 @@
-"use strict";
-var HeaderEvent = (function () {
-    function HeaderEvent() {
+define(["require", "exports"], function (require, exports) {
+    "use strict";
+    class HeaderEvent {
     }
     HeaderEvent.MENU_ITEM_SELECTED = 'HeaderEvent.MENU_ITEM_SELECTED';
-    return HeaderEvent;
-}());
-exports.__esModule = true;
-exports["default"] = HeaderEvent;
+    Object.defineProperty(exports, "__esModule", { value: true });
+    exports.default = HeaderEvent;
+});

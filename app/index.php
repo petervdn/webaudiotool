@@ -56,5 +56,5 @@
 		<input type="file" style="display:none" accept=".pw">
     </body>
     <script src="js/lib/require.js"></script>
-    <script src="js/ts/Bootstrap.js"></script>
+    <script src="ts/Bootstrap.js"></script>
 </html>

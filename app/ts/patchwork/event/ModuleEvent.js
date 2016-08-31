@@ -1,9 +1,8 @@
-"use strict";
-var ModuleEvent = (function () {
-    function ModuleEvent() {
+define(["require", "exports"], function (require, exports) {
+    "use strict";
+    class ModuleEvent {
     }
     ModuleEvent.ATTRIBUTE_CHANGED = 'ModuleEvent.ATTRIBUTE_CHANGED';
-    return ModuleEvent;
-}());
-exports.__esModule = true;
-exports["default"] = ModuleEvent;
+    Object.defineProperty(exports, "__esModule", { value: true });
+    exports.default = ModuleEvent;
+});

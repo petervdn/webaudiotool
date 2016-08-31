@@ -1,4 +1,3 @@
-import Patch from "../patchwork/core/Patch";
 import Footer from "./Footer";
 import IPoint from "./data/interface/IPoint";
 import ViewCode from "./ViewCode";
@@ -18,6 +17,7 @@ import PatchEvent from "../patchwork/event/PatchEvent";
 import VisualModule from "./patch/VisualModule";
 import ModuleDefinitions from "../patchwork/config/ModuleDefinitions";
 import EditorUtils from "../../js/patchwork/util/EditorUtils";
+import Patch from "../patchwork/core/Patch";
 
 declare var $:any;
 

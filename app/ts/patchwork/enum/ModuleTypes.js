@@ -1,6 +1,6 @@
-"use strict";
-var ModuleTypes = (function () {
-    function ModuleTypes() {
+define(["require", "exports"], function (require, exports) {
+    "use strict";
+    class ModuleTypes {
     }
     // native
     ModuleTypes.ANALYSER = 'analyser';
@@ -23,7 +23,6 @@ var ModuleTypes = (function () {
     ModuleTypes.OUTPUT = 'output';
     ModuleTypes.SUBPATCH = 'sub';
     ModuleTypes.DESTINATION = 'destination';
-    return ModuleTypes;
-}());
-exports.__esModule = true;
-exports["default"] = ModuleTypes;
+    Object.defineProperty(exports, "__esModule", { value: true });
+    exports.default = ModuleTypes;
+});

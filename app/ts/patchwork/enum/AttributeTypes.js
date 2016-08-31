@@ -1,6 +1,6 @@
-"use strict";
-var AttributeTypes = (function () {
-    function AttributeTypes() {
+define(["require", "exports"], function (require, exports) {
+    "use strict";
+    class AttributeTypes {
     }
     AttributeTypes.AUDIO_PARAM = 'AttributeTypes.AUDIO_PARAM';
     AttributeTypes.FLOAT = 'AttributeTypes.FLOAT';
@@ -10,7 +10,6 @@ var AttributeTypes = (function () {
     AttributeTypes.BUFFER = 'AttributeTypes.BUFFER';
     AttributeTypes.STREAM = 'AttributeTypes.STREAM';
     AttributeTypes.FLOAT_ARRAY = 'AttributeTypes.FLOAT_ARRAY';
-    return AttributeTypes;
-}());
-exports.__esModule = true;
-exports["default"] = AttributeTypes;
+    Object.defineProperty(exports, "__esModule", { value: true });
+    exports.default = AttributeTypes;
+});

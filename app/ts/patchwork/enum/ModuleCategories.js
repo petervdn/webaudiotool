@@ -1,10 +1,9 @@
-"use strict";
-var ModuleCategories = (function () {
-    function ModuleCategories() {
+define(["require", "exports"], function (require, exports) {
+    "use strict";
+    class ModuleCategories {
     }
     ModuleCategories.NATIVE = 'ModuleCategories.NATIVE';
     ModuleCategories.PROXY = 'ModuleCategories.PROXY';
-    return ModuleCategories;
-}());
-exports.__esModule = true;
-exports["default"] = ModuleCategories;
+    Object.defineProperty(exports, "__esModule", { value: true });
+    exports.default = ModuleCategories;
+});
