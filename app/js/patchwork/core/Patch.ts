@@ -8,15 +8,17 @@ import Module from "./Module";
 import ModuleTypes from "../enum/ModuleTypes";
 import ModuleEvent from "../event/ModuleEvent";
 import IModuleDefinition from "../config/IModuleDefinition";
+import IPatchObject from "./IPatchObject";
+import IModuleObject from "./IModuleObject";
 
 class Patch extends EventDispatcher
 {
 	public static ID_COUNT_SEPARATOR = '_'; // todo private?
 	public static ID_SUBPATCH_SEPARATOR = '$';
 
+	public modules:Array<Module> = [];
 	public parentModule:Module;
 	public audioContext:AudioContext;
-	public modules:Array<Module> = [];
 	public connections:Array<Connection> = [];
 	public countsByType:{[type:string]: number} = {};
 	public audioContextManager:AudioContextManager;
@@ -24,7 +26,7 @@ class Patch extends EventDispatcher
 	public moduleEventHandler:any;
 	public bufferManager:BufferManager;
 	
-	constructor(audioContext:AudioContext, parentModule?:Module) // todo type
+	constructor(audioContext:AudioContext, parentModule?:Module)
 	{
 		super();
 
@@ -45,6 +47,10 @@ class Patch extends EventDispatcher
 		this.moduleEventHandler = this.handleModuleEvent.bind(this);
 	}
 
+	/**
+	 * Removes a given connection from the patch.
+	 * @param connectionToRemove
+     */
 	public removeConnection(connectionToRemove:Connection):void
 	{
 		let index:number = this.connections.indexOf(connectionToRemove);
@@ -67,6 +73,13 @@ class Patch extends EventDispatcher
 		}
 	}
 
+	/**
+	 * Adds a module to the patch.
+	 * @param moduleType
+	 * @param moduleArguments
+	 * @param moduleObject
+	 * @returns {Module}
+     */
 	public addModuleByType(moduleType:string, moduleArguments?:Array<any>, moduleObject?:any):Module // moduleObject is passed when parsing a full patch json todo type
 	{
 		if(!moduleType)
@@ -150,17 +163,29 @@ class Patch extends EventDispatcher
 		this.dispatchEvent(PatchEvent.MODULE_ATTRIBUTE_CHANGED, {module: data.module, attribute: data.attribute});
 	}
 
-	public addEventListenersToModule(module:Module):void
+	/**
+	 * Add necessary listeners to module.
+	 * @param module
+     */
+	private addEventListenersToModule(module:Module):void
 	{
 		module.addEventListener(ModuleEvent.ATTRIBUTE_CHANGED, this.moduleEventHandler);
 	}
 
-	public removeEventListenersFromModule(module:Module):void
+	/**
+	 * Removes necessary listeners from module.
+	 * @param module
+	 */
+	private removeEventListenersFromModule(module:Module):void
 	{
 		module.removeEventListener(ModuleEvent.ATTRIBUTE_CHANGED, this.moduleEventHandler);
 	}
 
-	public addEventListenersToSubPatch(subPatch:Patch):void
+	/**
+	 * Add necessary listeners to subpatch.
+	 * @param module
+	 */
+	private addEventListenersToSubPatch(subPatch:Patch):void
 	{
 		subPatch.addEventListener(PatchEvent.MODULE_ADDED, this.subPatchEventHandler);
 		subPatch.addEventListener(PatchEvent.MODULE_REMOVED, this.subPatchEventHandler);
@@ -171,7 +196,11 @@ class Patch extends EventDispatcher
 		subPatch.addEventListener(PatchEvent.MODULE_ATTRIBUTE_CHANGED, this.subPatchEventHandler);
 	}
 
-	public removeEventListenersFromSubPatch(subPatch):void
+	/**
+	 * Remove necessary listeners from module.
+	 * @param module
+	 */
+	private removeEventListenersFromSubPatch(subPatch:Patch):void
 	{
 		subPatch.removeEventListener(PatchEvent.MODULE_ADDED, this.subPatchEventHandler);
 		subPatch.removeEventListener(PatchEvent.MODULE_REMOVED, this.subPatchEventHandler);
@@ -183,45 +212,40 @@ class Patch extends EventDispatcher
 
 	}
 
-	public handleSubPatchEvent(type, data):void
+	private handleSubPatchEvent(type, data):void
 	{
 		// redispatch all events, so they bubble up to the root
 		this.dispatchEvent(type, data);
 	}
 
-	public getModuleById(moduleId):Module
+	public getModuleById(moduleId:string):Module
 	{
-		for(var i = 0; i < this.modules.length; i++)
-		{
-			if(this.modules[i].id === moduleId) return this.modules[i];
-		}
-
-		return null;
+		return this.modules.find(module => module.id === moduleId);
 	}
 
-	public removeModuleById(moduleId):void
+	/**
+	 * Removes a module from the patch.
+	 * @param moduleId
+     */
+	public removeModuleById(moduleId:string):void
 	{
-		var module = this.getModuleById(moduleId);
-		var moduleIndex = this.modules.indexOf(module);
+		let module:Module = this.getModuleById(moduleId);
 
-		if(module && moduleIndex > -1)
+		if(module)
 		{
+			let moduleIndex:number = this.modules.indexOf(module);
+
 			// first get all connections from or to this module
-			var connections = this.getConnectionsForModule(module);
+			var connections:Array<Connection> = this.getConnectionsForModule(module);
 
 			// remove all these connections
-			for(var i = 0; i < connections.length; i++)
-			{
-				this.removeConnection(connections[i]);
-			}
+			connections.forEach(connection => this.removeConnection(connection));
 
 			// remove module from list
 			this.modules.splice(moduleIndex, 1);
 
 			if(module.definition.type === ModuleTypes.SUBPATCH)
 			{
-
-
 				// and clear subpatch 
 				module.subPatch.clear();
 
@@ -231,14 +255,13 @@ class Patch extends EventDispatcher
 				module.subPatch.destruct();
 			}
 
-			// do this BEFORE destruct, so that listeners can still check the module's id
+			// do this BEFORE destruct, so that listeners can still check the module's id todo maybe do it afterwards and pass the id? or do we need the full module
 			this.dispatchEvent(PatchEvent.MODULE_REMOVED, {module: module});
 
 			this.removeEventListenersFromModule(module);
 
 			// destruct
 			module.destruct();
-
 		}
 		else
 		{
@@ -246,56 +269,59 @@ class Patch extends EventDispatcher
 		}
 	}
 
-	public getConnectionsForModule(module):Array<Connection>
+	/**
+	 * Returns all connections for a given module.
+ 	 * @param module
+	 * @returns {Array}
+     */
+	public getConnectionsForModule(module:Module):Array<Connection>
 	{
-		var results = [];
-		for(var i = 0; i < this.connections.length; i++)
-		{
-			var connection = this.connections[i];
-
-			if(connection.sourceModule === module || connection.destinationModule === module) results.push(connection);
-		}
-
-		return results;
+		return this.connections.filter(connection => connection.sourceModule === module || connection.destinationModule === module);
 	}
 
+	/**
+	 * Get all modules of type INPUT for a patch. todo do we need this? we canjust call this.getModulesByType
+	 * @returns {Array<Module>}
+     */
 	public getInputs():Array<Module>
 	{
 		return this.getModulesByType(ModuleTypes.INPUT);
 	}
 
+	/**
+	 * Get all modules of type OUTPUT for a patch.
+	 * @returns {Array<Module>}
+     */
 	public getOutputs():Array<Module>
 	{
 		return this.getModulesByType(ModuleTypes.OUTPUT);
 	}
 
-	public getModulesByType(moduleType):Array<Module>
+	/**
+	 * Returns all modules for a given type.
+	 * @param moduleType
+	 * @returns {Array}
+     */
+	public getModulesByType(moduleType:string):Array<Module>
 	{
-		var results = [];
-		for(var i = 0; i < this.modules.length; i++)
-		{
-			if(this.modules[i].definition.type === moduleType) results.push(this.modules[i]);
-		}
-
-		return results;
+		return this.modules.filter(module => module.definition.type === moduleType);
 	}
 
+	/**
+	 * Returns all subpatch modules in the path.
+	 * @returns {Array}
+     */
 	public getSubPatchModules():Array<Module>
 	{
-		var modules = [];
-
-		for(var i = 0 ; i < this.modules.length; i++)
-		{
-			if(this.modules[i].definition.type === ModuleTypes.SUBPATCH) modules.push(this.modules[i]);
-		}
-
-		return modules;
+		return this.modules.filter(module => module.definition.type === ModuleTypes.SUBPATCH);
 	}
 
+	/**
+	 * Returns all connections for this patch, including all connections in nested subpatches
+	 * @returns {Array}
+     */
 	public getConnectionsWithNested():Array<Connection>
 	{
-		// returns all connections for this patch, and all connections in nested subpatches
-
 		// first add connections in this patch
 		var connections = [];
 		for(var i = 0; i < this.connections.length; i++)
@@ -313,17 +339,19 @@ class Patch extends EventDispatcher
 		}
 
 		return connections;
-
 	}
 
-	public toObject():any
+	/**
+	 * Converts the whole patch to a data-object.
+	 * @returns {{modules: Array, connections: Array}}
+     */
+	public toObject():IPatchObject
 	{
-		var object = {modules: [], connections: []};
+		var object:IPatchObject = {modules: [], connections: []};
 
-		for(var i = 0; i < this.modules.length; i++)
+		this.modules.forEach(module =>
 		{
-			var module = this.modules[i];
-			var moduleObject = { // todo type and check
+			let moduleObject:IModuleObject = {
 				id: module.id,
 				pos: null,
 				args: null,
@@ -331,60 +359,58 @@ class Patch extends EventDispatcher
 				subPatch: null
 			};
 
-			if(module.position)
-			{
-				moduleObject.pos = {x: module.position.x, y: module.position.y};
-			}
+			if(module.position) moduleObject.pos = {x: module.position.x, y: module.position.y};
 
 			// add constructor arguments
 			if(module.args && module.args.length > 0) moduleObject.args = module.args;
 
 			// add audioparams
-			if(module.definition.attributes && module.definition.attributes.length > 0)
+			if(module.definition.attributes)
 			{
 				var attributesObject = [];
-				for(var j = 0; j < module.definition.attributes.length; j++)
+				module.definition.attributes.forEach(attribute =>
 				{
-					var attribute = module.definition.attributes[j];
-
-					var attributeValue = module.getAttributeValue(attribute.id);
-
 					attributesObject.push({
 						id: attribute.id,
-						value: attributeValue
+						value: module.getAttributeValue(attribute.id)
 					});
-				}
+				});
 
 				moduleObject.attributes = attributesObject;
 			}
 
 			// nested subpatch
-			if(module.definition.type === ModuleTypes.SUBPATCH)
-			{
-				moduleObject.subPatch = module.subPatch.toObject();
-			}
+			if(module.definition.type === ModuleTypes.SUBPATCH) moduleObject.subPatch = module.subPatch.toObject();
 
 			object.modules.push(moduleObject);
-		}
+		});
 
-		for(var i = 0; i < this.connections.length; i++)
+		this.connections.forEach(connection =>
 		{
-			var connection = this.connections[i];
 			object.connections.push({
 				source: connection.sourceModule.id,
 				sourceOutput: connection.sourceOutputIndex,
 				destination: connection.destinationModule.id,
 				destinationInput: connection.destinationInputIndex,
 			});
-		}
+		});
 
 		return object;
 	}
 
-	public addConnection(sourceModuleId, sourceOutputIndex, destinationModuleId, destinationInputIndex, reconnect?):boolean
+	/**
+	 * Creates a new connection in the patch
+	 * @param sourceModuleId
+	 * @param sourceOutputIndex
+	 * @param destinationModuleId
+	 * @param destinationInputIndex
+	 * @param reconnect
+     * @returns {boolean}
+     */
+	public addConnection(sourceModuleId:string, sourceOutputIndex:number, destinationModuleId:string, destinationInputIndex:number, reconnect:boolean = false):boolean
 	{
-		var sourceModule = this.getModuleById(sourceModuleId);
-		var destinationModule = this.getModuleById(destinationModuleId);
+		let sourceModule:Module = this.getModuleById(sourceModuleId);
+		let destinationModule:Module = this.getModuleById(destinationModuleId);
 
 		if(sourceModule && destinationModule)
 		{
@@ -415,13 +441,10 @@ class Patch extends EventDispatcher
 		return false;
 	}
 
-	public setPatchByJSON(jsonString):void
-	{
-		this.clear();
-
-		//this.setPatchByObject(JSON.parse(jsonString)); todo probably fromObject fnc?
-	}
-
+	/**
+	 * Create a patch from an object
+	 * @param patchObject
+     */
 	public fromObject(patchObject):void
 	{
 		for(var i = 0; i < patchObject.modules.length; i++)
@@ -431,6 +454,7 @@ class Patch extends EventDispatcher
 
 			//console.log(type, moduleObject);
 
+			// todo fix this
 			var module = this.addModuleByType(type, moduleObject.args, moduleObject); // TODO this is a strange way to pass arguments 
 
 			//module.setAttributesByLoadedObject(moduleObject);
@@ -450,9 +474,13 @@ class Patch extends EventDispatcher
 		}
 	}
 
+	/**
+	 * Returns the root patch of this patch (if it exists)
+	 * @returns {Patch}
+     */
 	public getRootPatch():Patch
 	{
-		var parentPatch = this.getParentPatch();
+		let parentPatch:Patch = this.getParentPatch();
 
 		if(!parentPatch)
 		{
@@ -469,11 +497,14 @@ class Patch extends EventDispatcher
 		}
 	}
 
-	public createParentList():Array<any>
+	/**
+	 * Returns a list of ids for all parents of this patch.
+	 * @returns {T[]}
+     */
+	public createParentList():Array<string>
 	{
-		let results = [];
-
-		var parentModule = this.parentModule;
+		let results:Array<string> = [];
+		let parentModule:Module = this.parentModule;
 
 		while(parentModule)
 		{
@@ -483,7 +514,6 @@ class Patch extends EventDispatcher
 		}
 
 		return results.reverse();
-
 	}
 
 	public hasParentPatch():boolean
@@ -496,12 +526,14 @@ class Patch extends EventDispatcher
 		return this.parentModule ? this.parentModule.parentPatch : null;
 	}
 
+	/**
+	 * Removes every module and connection from the patch.
+	 */
 	public clear():void
 	{
-		console.log('clear')
+		// todo foreach?
 		for(var i = this.modules.length - 1; i >= 0; i--)
 		{
-			console.log('remove', this.modules[i]);
 			this.removeModuleById(this.modules[i].id);
 		}
 

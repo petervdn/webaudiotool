@@ -16,6 +16,11 @@ define(["require", "exports", "../event/PatchEvent", "../enum/ModuleCategories",
             this.patch.addEventListener(PatchEvent_1.default.PATCH_CLEARED, this.patchEventHandler);
             this.patch.addEventListener(PatchEvent_1.default.MODULE_ATTRIBUTE_CHANGED, this.patchEventHandler);
         }
+        /**
+         * Listens to several events that can be dispatched by the patch, and acts accordingly.
+         * @param type
+         * @param data
+         */
         handlePatchEvent(type, data) {
             switch (type) {
                 case PatchEvent_1.default.MODULE_ADDED:
@@ -75,7 +80,7 @@ define(["require", "exports", "../event/PatchEvent", "../enum/ModuleCategories",
                     }
                 case PatchEvent_1.default.PATCH_CLEARED:
                     {
-                        this.dispatchEvent(AudioContextManagerEvent_1.default.PATCH_CLEARED);
+                        this.dispatchEvent(AudioContextManagerEvent_1.default.PATCH_CLEARED); // todo this is not caught by anyone?
                         break;
                     }
                 case PatchEvent_1.default.CONNECTION_ADDED:

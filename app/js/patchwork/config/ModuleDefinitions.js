@@ -226,6 +226,7 @@ define(["require", "exports", "../enum/ModuleTypes", "../enum/ModuleCategories",
                 },
             ]
         },
+        // todo
         // {
         // 	'type: ModuleTypes.MEDIA_ELEMENT_SOURCE,
         // 	'label: 'Media Element Source',

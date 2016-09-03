@@ -30,6 +30,11 @@ class AudioContextManager extends EventDispatcher
 		this.patch.addEventListener(PatchEvent.MODULE_ATTRIBUTE_CHANGED, this.patchEventHandler);
 	}
 
+	/**
+	 * Listens to several events that can be dispatched by the patch, and acts accordingly.
+	 * @param type
+	 * @param data
+     */
 	private handlePatchEvent(type:string, data:any):void
 	{
 		switch(type)
@@ -98,7 +103,7 @@ class AudioContextManager extends EventDispatcher
 			}
 			case PatchEvent.PATCH_CLEARED:
 			{
-				this.dispatchEvent(AudioContextManagerEvent.PATCH_CLEARED);
+				this.dispatchEvent(AudioContextManagerEvent.PATCH_CLEARED); // todo this is not caught by anyone?
 				break;
 			}
 			case PatchEvent.CONNECTION_ADDED:

@@ -18,6 +18,10 @@ define(["require", "exports", "./EventDispatcher", "./Connection", "./AudioConte
             this.subPatchEventHandler = this.handleSubPatchEvent.bind(this);
             this.moduleEventHandler = this.handleModuleEvent.bind(this);
         }
+        /**
+         * Removes a given connection from the patch.
+         * @param connectionToRemove
+         */
         removeConnection(connectionToRemove) {
             let index = this.connections.indexOf(connectionToRemove);
             if (index >= 0) {
@@ -32,6 +36,13 @@ define(["require", "exports", "./EventDispatcher", "./Connection", "./AudioConte
                 console.error('Connection not found', connectionToRemove);
             }
         }
+        /**
+         * Adds a module to the patch.
+         * @param moduleType
+         * @param moduleArguments
+         * @param moduleObject
+         * @returns {Module}
+         */
         addModuleByType(moduleType, moduleArguments, moduleObject) {
             if (!moduleType) {
                 console.error('No type given');
@@ -90,12 +101,24 @@ define(["require", "exports", "./EventDispatcher", "./Connection", "./AudioConte
             // TODO switch on type, even though there is only type one now
             this.dispatchEvent(PatchEvent_1.default.MODULE_ATTRIBUTE_CHANGED, { module: data.module, attribute: data.attribute });
         }
+        /**
+         * Add necessary listeners to module.
+         * @param module
+         */
         addEventListenersToModule(module) {
             module.addEventListener(ModuleEvent_1.default.ATTRIBUTE_CHANGED, this.moduleEventHandler);
         }
+        /**
+         * Removes necessary listeners from module.
+         * @param module
+         */
         removeEventListenersFromModule(module) {
             module.removeEventListener(ModuleEvent_1.default.ATTRIBUTE_CHANGED, this.moduleEventHandler);
         }
+        /**
+         * Add necessary listeners to subpatch.
+         * @param module
+         */
         addEventListenersToSubPatch(subPatch) {
             subPatch.addEventListener(PatchEvent_1.default.MODULE_ADDED, this.subPatchEventHandler);
             subPatch.addEventListener(PatchEvent_1.default.MODULE_REMOVED, this.subPatchEventHandler);
@@ -105,6 +128,10 @@ define(["require", "exports", "./EventDispatcher", "./Connection", "./AudioConte
             subPatch.addEventListener(PatchEvent_1.default.PATCH_CLEARED, this.subPatchEventHandler);
             subPatch.addEventListener(PatchEvent_1.default.MODULE_ATTRIBUTE_CHANGED, this.subPatchEventHandler);
         }
+        /**
+         * Remove necessary listeners from module.
+         * @param module
+         */
         removeEventListenersFromSubPatch(subPatch) {
             subPatch.removeEventListener(PatchEvent_1.default.MODULE_ADDED, this.subPatchEventHandler);
             subPatch.removeEventListener(PatchEvent_1.default.MODULE_REMOVED, this.subPatchEventHandler);
@@ -119,22 +146,20 @@ define(["require", "exports", "./EventDispatcher", "./Connection", "./AudioConte
             this.dispatchEvent(type, data);
         }
         getModuleById(moduleId) {
-            for (var i = 0; i < this.modules.length; i++) {
-                if (this.modules[i].id === moduleId)
-                    return this.modules[i];
-            }
-            return null;
+            return this.modules.find(module => module.id === moduleId);
         }
+        /**
+         * Removes a module from the patch.
+         * @param moduleId
+         */
         removeModuleById(moduleId) {
-            var module = this.getModuleById(moduleId);
-            var moduleIndex = this.modules.indexOf(module);
-            if (module && moduleIndex > -1) {
+            let module = this.getModuleById(moduleId);
+            if (module) {
+                let moduleIndex = this.modules.indexOf(module);
                 // first get all connections from or to this module
                 var connections = this.getConnectionsForModule(module);
                 // remove all these connections
-                for (var i = 0; i < connections.length; i++) {
-                    this.removeConnection(connections[i]);
-                }
+                connections.forEach(connection => this.removeConnection(connection));
                 // remove module from list
                 this.modules.splice(moduleIndex, 1);
                 if (module.definition.type === ModuleTypes_1.default.SUBPATCH) {
@@ -144,7 +169,7 @@ define(["require", "exports", "./EventDispatcher", "./Connection", "./AudioConte
                     this.removeEventListenersFromSubPatch(module.subPatch);
                     module.subPatch.destruct();
                 }
-                // do this BEFORE destruct, so that listeners can still check the module's id
+                // do this BEFORE destruct, so that listeners can still check the module's id todo maybe do it afterwards and pass the id? or do we need the full module
                 this.dispatchEvent(PatchEvent_1.default.MODULE_REMOVED, { module: module });
                 this.removeEventListenersFromModule(module);
                 // destruct
@@ -154,39 +179,48 @@ define(["require", "exports", "./EventDispatcher", "./Connection", "./AudioConte
                 console.error('Module not found for id: ' + moduleId + ' (or not in list)');
             }
         }
+        /**
+         * Returns all connections for a given module.
+         * @param module
+         * @returns {Array}
+         */
         getConnectionsForModule(module) {
-            var results = [];
-            for (var i = 0; i < this.connections.length; i++) {
-                var connection = this.connections[i];
-                if (connection.sourceModule === module || connection.destinationModule === module)
-                    results.push(connection);
-            }
-            return results;
+            return this.connections.filter(connection => connection.sourceModule === module || connection.destinationModule === module);
         }
+        /**
+         * Get all modules of type INPUT for a patch. todo do we need this? we canjust call this.getModulesByType
+         * @returns {Array<Module>}
+         */
         getInputs() {
             return this.getModulesByType(ModuleTypes_1.default.INPUT);
         }
+        /**
+         * Get all modules of type OUTPUT for a patch.
+         * @returns {Array<Module>}
+         */
         getOutputs() {
             return this.getModulesByType(ModuleTypes_1.default.OUTPUT);
         }
+        /**
+         * Returns all modules for a given type.
+         * @param moduleType
+         * @returns {Array}
+         */
         getModulesByType(moduleType) {
-            var results = [];
-            for (var i = 0; i < this.modules.length; i++) {
-                if (this.modules[i].definition.type === moduleType)
-                    results.push(this.modules[i]);
-            }
-            return results;
+            return this.modules.filter(module => module.definition.type === moduleType);
         }
+        /**
+         * Returns all subpatch modules in the path.
+         * @returns {Array}
+         */
         getSubPatchModules() {
-            var modules = [];
-            for (var i = 0; i < this.modules.length; i++) {
-                if (this.modules[i].definition.type === ModuleTypes_1.default.SUBPATCH)
-                    modules.push(this.modules[i]);
-            }
-            return modules;
+            return this.modules.filter(module => module.definition.type === ModuleTypes_1.default.SUBPATCH);
         }
+        /**
+         * Returns all connections for this patch, including all connections in nested subpatches
+         * @returns {Array}
+         */
         getConnectionsWithNested() {
-            // returns all connections for this patch, and all connections in nested subpatches
             // first add connections in this patch
             var connections = [];
             for (var i = 0; i < this.connections.length; i++) {
@@ -200,56 +234,63 @@ define(["require", "exports", "./EventDispatcher", "./Connection", "./AudioConte
             }
             return connections;
         }
+        /**
+         * Converts the whole patch to a data-object.
+         * @returns {{modules: Array, connections: Array}}
+         */
         toObject() {
             var object = { modules: [], connections: [] };
-            for (var i = 0; i < this.modules.length; i++) {
-                var module = this.modules[i];
-                var moduleObject = {
+            this.modules.forEach(module => {
+                let moduleObject = {
                     id: module.id,
                     pos: null,
                     args: null,
                     attributes: null,
                     subPatch: null
                 };
-                if (module.position) {
+                if (module.position)
                     moduleObject.pos = { x: module.position.x, y: module.position.y };
-                }
                 // add constructor arguments
                 if (module.args && module.args.length > 0)
                     moduleObject.args = module.args;
                 // add audioparams
-                if (module.definition.attributes && module.definition.attributes.length > 0) {
+                if (module.definition.attributes) {
                     var attributesObject = [];
-                    for (var j = 0; j < module.definition.attributes.length; j++) {
-                        var attribute = module.definition.attributes[j];
-                        var attributeValue = module.getAttributeValue(attribute.id);
+                    module.definition.attributes.forEach(attribute => {
                         attributesObject.push({
                             id: attribute.id,
-                            value: attributeValue
+                            value: module.getAttributeValue(attribute.id)
                         });
-                    }
+                    });
                     moduleObject.attributes = attributesObject;
                 }
                 // nested subpatch
-                if (module.definition.type === ModuleTypes_1.default.SUBPATCH) {
+                if (module.definition.type === ModuleTypes_1.default.SUBPATCH)
                     moduleObject.subPatch = module.subPatch.toObject();
-                }
                 object.modules.push(moduleObject);
-            }
-            for (var i = 0; i < this.connections.length; i++) {
-                var connection = this.connections[i];
+            });
+            this.connections.forEach(connection => {
                 object.connections.push({
                     source: connection.sourceModule.id,
                     sourceOutput: connection.sourceOutputIndex,
                     destination: connection.destinationModule.id,
                     destinationInput: connection.destinationInputIndex,
                 });
-            }
+            });
             return object;
         }
-        addConnection(sourceModuleId, sourceOutputIndex, destinationModuleId, destinationInputIndex, reconnect) {
-            var sourceModule = this.getModuleById(sourceModuleId);
-            var destinationModule = this.getModuleById(destinationModuleId);
+        /**
+         * Creates a new connection in the patch
+         * @param sourceModuleId
+         * @param sourceOutputIndex
+         * @param destinationModuleId
+         * @param destinationInputIndex
+         * @param reconnect
+         * @returns {boolean}
+         */
+        addConnection(sourceModuleId, sourceOutputIndex, destinationModuleId, destinationInputIndex, reconnect = false) {
+            let sourceModule = this.getModuleById(sourceModuleId);
+            let destinationModule = this.getModuleById(destinationModuleId);
             if (sourceModule && destinationModule) {
                 if (sourceModule.outputIndexIsValid(sourceOutputIndex) && destinationModule.inputIndexIsValid(destinationInputIndex)) {
                     var connection = new Connection_1.default(sourceModule, sourceOutputIndex, destinationModule, destinationInputIndex);
@@ -268,15 +309,16 @@ define(["require", "exports", "./EventDispatcher", "./Connection", "./AudioConte
             }
             return false;
         }
-        setPatchByJSON(jsonString) {
-            this.clear();
-            //this.setPatchByObject(JSON.parse(jsonString)); todo probably fromObject fnc?
-        }
+        /**
+         * Create a patch from an object
+         * @param patchObject
+         */
         fromObject(patchObject) {
             for (var i = 0; i < patchObject.modules.length; i++) {
                 var moduleObject = patchObject.modules[i];
                 var type = moduleObject.id.split(Patch.ID_COUNT_SEPARATOR)[0];
                 //console.log(type, moduleObject);
+                // todo fix this
                 var module = this.addModuleByType(type, moduleObject.args, moduleObject); // TODO this is a strange way to pass arguments 
             }
             for (var i = 0; i < patchObject.connections.length; i++) {
@@ -284,8 +326,12 @@ define(["require", "exports", "./EventDispatcher", "./Connection", "./AudioConte
                 this.addConnection(loadedConnectionData.source, loadedConnectionData.sourceOutput, loadedConnectionData.destination, loadedConnectionData.destinationInput);
             }
         }
+        /**
+         * Returns the root patch of this patch (if it exists)
+         * @returns {Patch}
+         */
         getRootPatch() {
-            var parentPatch = this.getParentPatch();
+            let parentPatch = this.getParentPatch();
             if (!parentPatch) {
                 return this;
             }
@@ -296,9 +342,13 @@ define(["require", "exports", "./EventDispatcher", "./Connection", "./AudioConte
                 return parentPatch;
             }
         }
+        /**
+         * Returns a list of ids for all parents of this patch.
+         * @returns {T[]}
+         */
         createParentList() {
             let results = [];
-            var parentModule = this.parentModule;
+            let parentModule = this.parentModule;
             while (parentModule) {
                 results.push(parentModule.id);
                 parentModule = parentModule.parentPatch.parentModule;
@@ -311,10 +361,12 @@ define(["require", "exports", "./EventDispatcher", "./Connection", "./AudioConte
         getParentPatch() {
             return this.parentModule ? this.parentModule.parentPatch : null;
         }
+        /**
+         * Removes every module and connection from the patch.
+         */
         clear() {
-            console.log('clear');
+            // todo foreach?
             for (var i = this.modules.length - 1; i >= 0; i--) {
-                console.log('remove', this.modules[i]);
                 this.removeModuleById(this.modules[i].id);
             }
             // reset counts

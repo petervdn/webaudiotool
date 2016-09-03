@@ -63,12 +63,7 @@ class EventDispatcher
 		}
 	}
 
-	public showAllEventListeners():void
-	{
-		console.log(this._eventListeners);
-	}
-
-	public removeAllEventListeners()
+	public removeAllEventListeners():void
 	{
 		this._eventListeners = {};
 	}

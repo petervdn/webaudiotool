@@ -42,9 +42,6 @@ define(["require", "exports"], function (require, exports) {
                 }
             }
         }
-        showAllEventListeners() {
-            console.log(this._eventListeners);
-        }
         removeAllEventListeners() {
             this._eventListeners = {};
         }
