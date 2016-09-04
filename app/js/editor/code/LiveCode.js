@@ -6,7 +6,7 @@ define(["require", "exports", "./CodeGenerator", "../../patchwork/event/PatchEve
             this.$element = $('#footer .livecode');
             this.$liveCode = this.$element; // todo ????
             this.resetLiveCode();
-            // init listeners (listen to both patch and acm) TODO change to all eventlisteners on ACM?
+            // init listeners (listen to both patch and acm) TODO change to all eventlisteners on ACM? edit: errr, why not on patch?!
             this.eventHandler = this.handleEvent.bind(this);
             patch.audioContextManager.addEventListener(AudioContextManagerEvent_1.default.MODULE_ADDED, this.eventHandler);
             patch.audioContextManager.addEventListener(AudioContextManagerEvent_1.default.CONNECTION_ADDED, this.eventHandler);

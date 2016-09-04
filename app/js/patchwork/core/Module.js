@@ -1,6 +1,13 @@
 define(["require", "exports", "../event/ModuleEvent", "../enum/ModuleCategories", "./EventDispatcher", "../enum/ModuleTypes", "../enum/AttributeTypes"], function (require, exports, ModuleEvent_1, ModuleCategories_1, EventDispatcher_1, ModuleTypes_1, AttributeTypes_1) {
     "use strict";
     class Module extends EventDispatcher_1.default {
+        /**
+         * Creates a new module in a patch. This should not be done manually. todo prevent manual creation
+         * @param parentPatch
+         * @param definition
+         * @param id
+         * @param args
+         */
         constructor(parentPatch, definition, id, args) {
             super();
             this.parentPatch = parentPatch;
@@ -8,9 +15,14 @@ define(["require", "exports", "../event/ModuleEvent", "../enum/ModuleCategories"
             this.id = id;
             this.audioNode = null; // set later by the audiocontext manager (listens to added modules)
             this.args = args; // store constructor arguments, so we can save them in the json
-            this.position = null; // will be set if a visualmodule is created for it
-            this.subPatch = null; // will be filled if it's a subpatch
+            this.position = null; // will be set if a visualmodule is created for it. the only reason we set it is so we can use the value when we store it (toObject on Patch)
+            this.subPatch = null; // will be set if it's a subpatch
         }
+        /**
+         * Returns the value for a given attribute id
+         * @param attributeId
+         * @returns {any}
+         */
         getAttributeValue(attributeId) {
             // first get the attribute
             var attribute = this.getAttributeById(attributeId);
@@ -39,34 +51,34 @@ define(["require", "exports", "../event/ModuleEvent", "../enum/ModuleCategories"
                 console.error('No attribute found with id ' + attributeId + ' in module ' + this.definition.type);
             }
         }
+        /**
+         * Sets the audioNode for this module
+         * @param audioNode
+         */
         setAudioNode(audioNode) {
             this.audioNode = audioNode;
         }
+        /**
+         * Returns an attribute by its id
+         * @param attributeId
+         * @returns {T}
+         */
         getAttributeById(attributeId) {
-            if (this.definition.attributes) {
-                for (var i = 0; i < this.definition.attributes.length; i++) {
-                    var attribute = this.definition.attributes[i];
-                    if (attribute.id === attributeId)
-                        return attribute;
-                }
-            }
-            return null;
+            return this.definition.attributes ? this.definition.attributes.find(attribute => attribute.id === attributeId) : null;
         }
         setAttributeValue(attributeId, value) {
-            var attribute = this.getAttributeById(attributeId);
+            var attribute = this.getAttributeById(attributeId); // todo type
             if (attribute) {
                 switch (attribute.type) {
                     case AttributeTypes_1.default.AUDIO_PARAM:
                         {
-                            this.audioNode[attributeId].value = value;
-                            this.dispatchEvent(ModuleEvent_1.default.ATTRIBUTE_CHANGED, { module: this, attribute: attribute });
+                            this.audioNode[attributeId].value = value; // todo shouldnt the ACM do this?
                             break;
                         }
                     case AttributeTypes_1.default.OPTION_LIST:
                     case AttributeTypes_1.default.FLOAT:
                         {
                             this.audioNode[attributeId] = value;
-                            this.dispatchEvent(ModuleEvent_1.default.ATTRIBUTE_CHANGED, { module: this, attribute: attribute });
                             break;
                         }
                     default:
@@ -75,14 +87,25 @@ define(["require", "exports", "../event/ModuleEvent", "../enum/ModuleCategories"
                             return;
                         }
                 }
+                this.dispatchEvent(ModuleEvent_1.default.ATTRIBUTE_CHANGED, { module: this, attribute: attribute });
             }
             else {
                 console.error('Attribute not found: ' + attributeId);
             }
         }
+        /**
+         * Checks if there is an input for the given index.
+         * @param index
+         * @returns {boolean}
+         */
         inputIndexIsValid(index) {
             return !isNaN(index) && index < this.getNumberOfInputs() ? true : false;
         }
+        /**
+         * Checks if there is an output for the give index.
+         * @param index
+         * @returns {boolean}
+         */
         outputIndexIsValid(index) {
             return !isNaN(index) && index < this.getNumberOfOutputs() ? true : false;
         }

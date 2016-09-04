@@ -1,6 +1,7 @@
 import IModuleDefinitionOptionListAttribute from "./IModuleDefinitionOptionListAttribute";
 import IModuleDefinitionFloatAttribute from "./IModuleDefinitionFloatAttribute";
 import IModuleDefinitionReadOnlyAttribute from "./IModuleDefinitionReadOnlyAttribute";
+
 interface IModuleDefinition
 {
 	type:string;

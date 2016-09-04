@@ -6,6 +6,7 @@ import ModuleTypes from "../../patchwork/enum/ModuleTypes";
 import VisualModuleEvent from "../event/VisualModuleEvent";
 import ModuleEvent from "../../patchwork/event/ModuleEvent";
 import AttributeTypes from "../../patchwork/enum/AttributeTypes";
+import IAbstractModuleDefinitionAttribute from "../../patchwork/config/IAbstractModuleDefinitionAttribute";
 
 declare var $:any;
 
@@ -168,7 +169,7 @@ class VisualModule extends EventDispatcher
 
 		for(var i = 0; i < this.module.definition.attributes.length; i++)
 		{
-			var attribute = this.module.definition.attributes[i];
+			var attribute:IAbstractModuleDefinitionAttribute = this.module.definition.attributes[i];
 
 			switch(attribute.type)
 			{

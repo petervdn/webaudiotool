@@ -1,6 +1,12 @@
 define(["require", "exports", "../event/PatchEvent", "../enum/ModuleCategories", "../event/AudioContextManagerEvent", "./EventDispatcher"], function (require, exports, PatchEvent_1, ModuleCategories_1, AudioContextManagerEvent_1, EventDispatcher_1) {
     "use strict";
     class AudioContextManager extends EventDispatcher_1.default {
+        // todo rename this class? AudioContextSyncer, WebAudioGraphSyncer or something in that line
+        /**
+         * This class makes sure that whatever happens on the patch is correctly shadowed on the graph of the actual Web Audio API.
+         * @param patch
+         * @param audioContext
+         */
         constructor(patch, audioContext) {
             super();
             this.logColor = '#FF00FF';
@@ -25,13 +31,13 @@ define(["require", "exports", "../event/PatchEvent", "../enum/ModuleCategories",
             switch (type) {
                 case PatchEvent_1.default.MODULE_ADDED:
                     {
-                        var module = data.module;
+                        let module = data.module;
                         switch (module.definition.category) {
                             case ModuleCategories_1.default.NATIVE:
                                 {
                                     // call the function with supplied arguments to create the audionode and store it
-                                    var jsMethodName = module.definition.js;
-                                    var audioNode = this.audioContext[jsMethodName].call(this.audioContext, data.args);
+                                    let jsMethodName = module.definition.js;
+                                    let audioNode = this.audioContext[jsMethodName].call(this.audioContext, data.args);
                                     module.setAudioNode(audioNode);
                                     // start if osc TODO methods as buttons?
                                     if (module.definition.type === 'oscillator')
@@ -74,6 +80,7 @@ define(["require", "exports", "../event/PatchEvent", "../enum/ModuleCategories",
                     }
                 case PatchEvent_1.default.MODULE_REMOVED:
                     {
+                        // todo what is this
                         //this.codeGenerator.addToLiveCode(this.codeGenerator.getStringForModuleRemoved(data.module));	
                         //this.dispatchEvent(AudioContextManagerEvent.MODULE_REMOVED, {module: data.module});
                         break;
@@ -156,10 +163,8 @@ define(["require", "exports", "../event/PatchEvent", "../enum/ModuleCategories",
             }
         }
         addApiConnectionFor(connection) {
-            var apiConnections = connection.getApiConnections();
             // connect all sources with all destinations
-            for (var i = 0; i < apiConnections.length; i++) {
-                var connection = apiConnections[i];
+            connection.getApiConnections().forEach(connection => {
                 // -1 means it's an output module in the rootpatch, in that case we have to connect to the destination
                 if (connection.destinationInputIndex === -1) {
                     connection.sourceModule.audioNode.connect(this.audioContext.destination, connection.sourceOutputIndex);
@@ -176,7 +181,7 @@ define(["require", "exports", "../event/PatchEvent", "../enum/ModuleCategories",
                     }
                 }
                 this.dispatchEvent(AudioContextManagerEvent_1.default.CONNECTION_ADDED, { connection: connection });
-            }
+            });
         }
     }
     Object.defineProperty(exports, "__esModule", { value: true });

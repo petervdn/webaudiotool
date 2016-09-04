@@ -1,4 +1,6 @@
-interface IModuleDefinitionReadOnlyAttribute
+import IAbstractModuleDefinitionAttribute from "./IAbstractModuleDefinitionAttribute";
+
+interface IModuleDefinitionReadOnlyAttribute extends IAbstractModuleDefinitionAttribute
 {
 
 }

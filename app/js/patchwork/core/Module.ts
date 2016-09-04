@@ -5,19 +5,28 @@ import Patch from "./Patch";
 import ModuleTypes from "../enum/ModuleTypes";
 import Connection from "./Connection";
 import AttributeTypes from "../enum/AttributeTypes";
+import IModuleDefinition from "../config/IModuleDefinition";
+
 
 class Module extends EventDispatcher
 {
 	public parentPatch:Patch;
-	public definition:any; // todo type
-	public id:any;
+	public definition:IModuleDefinition;
+	public id:string;
 	public audioNode:AudioNode;
 	public args:Array<any>;
 	
 	public position:any;
 	public subPatch:Patch;
-	
-	constructor(parentPatch, definition, id, args)
+
+    /**
+     * Creates a new module in a patch. This should not be done manually. todo prevent manual creation
+     * @param parentPatch
+     * @param definition
+     * @param id
+     * @param args
+     */
+	constructor(parentPatch:Patch, definition:IModuleDefinition, id:string, args:Array<any>)
 	{
 		super();
 
@@ -27,10 +36,15 @@ class Module extends EventDispatcher
 		this.audioNode = null; // set later by the audiocontext manager (listens to added modules)
 		this.args = args; // store constructor arguments, so we can save them in the json
 
-		this.position = null; // will be set if a visualmodule is created for it
-		this.subPatch = null; // will be filled if it's a subpatch
+		this.position = null; // will be set if a visualmodule is created for it. the only reason we set it is so we can use the value when we store it (toObject on Patch)
+		this.subPatch = null; // will be set if it's a subpatch
 	}
 
+    /**
+     * Returns the value for a given attribute id
+     * @param attributeId
+     * @returns {any}
+     */
 	public getAttributeValue(attributeId:string):any
 	{
 		// first get the attribute
@@ -66,39 +80,35 @@ class Module extends EventDispatcher
 		}
 	}
 
+    /**
+     * Sets the audioNode for this module
+     * @param audioNode
+     */
 	public setAudioNode(audioNode:AudioNode):void
 	{
 		this.audioNode = audioNode;
 	}
 
-	public getAttributeById (attributeId):any // todo type
+    /**
+     * Returns an attribute by its id
+     * @param attributeId
+     * @returns {T}
+     */
+	public getAttributeById(attributeId):any // todo type
 	{
-		if(this.definition.attributes)
-		{
-			for(var i = 0; i < this.definition.attributes.length; i++)
-			{
-				var attribute = this.definition.attributes[i];
-
-				if(attribute.id === attributeId) return attribute;
-			}
-		}
-
-		return null;
+        return this.definition.attributes ? this.definition.attributes.find(attribute => attribute.id === attributeId) : null;
 	}
 
-	public setAttributeValue (attributeId:string, value:any):any
+	public setAttributeValue(attributeId:string, value:any):void
 	{
-		var attribute = this.getAttributeById(attributeId);
+		var attribute = this.getAttributeById(attributeId); // todo type
 		if(attribute)
 		{
 			switch(attribute.type)
 			{
 				case AttributeTypes.AUDIO_PARAM:
 				{
-
-					this.audioNode[attributeId].value = value;
-
-					this.dispatchEvent(ModuleEvent.ATTRIBUTE_CHANGED, {module: this, attribute: attribute});
+					this.audioNode[attributeId].value = value; // todo shouldnt the ACM do this?
 
 					break;
 				}
@@ -106,8 +116,6 @@ class Module extends EventDispatcher
 				case AttributeTypes.FLOAT:
 				{
 					this.audioNode[attributeId] = value;
-
-					this.dispatchEvent(ModuleEvent.ATTRIBUTE_CHANGED, {module: this, attribute: attribute});
 
 					break;
 				}
@@ -118,6 +126,8 @@ class Module extends EventDispatcher
 					return;
 				}
 			}
+
+            this.dispatchEvent(ModuleEvent.ATTRIBUTE_CHANGED, {module: this, attribute: attribute});
 		}
 		else
 		{
@@ -125,11 +135,21 @@ class Module extends EventDispatcher
 		}
 	}
 
-	public inputIndexIsValid(index:any):boolean
+    /**
+     * Checks if there is an input for the given index.
+     * @param index
+     * @returns {boolean}
+     */
+	public inputIndexIsValid(index:number):boolean
 	{
 		return !isNaN(index) && index < this.getNumberOfInputs() ? true : false;
 	}
 
+    /**
+     * Checks if there is an output for the give index.
+     * @param index
+     * @returns {boolean}
+     */
 	public outputIndexIsValid(index):boolean
 	{
 		return !isNaN(index) && index < this.getNumberOfOutputs() ? true : false;

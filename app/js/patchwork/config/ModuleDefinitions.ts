@@ -355,7 +355,7 @@ class ModuleDefinitions
 				type: ModuleTypes.INPUT,
 				label: 'Input',
 				category: ModuleCategories.PROXY,
-				in: 0,
+				in: 0,  // todo fix these input/output/subpatch/native types
 				out: 1
 			},
 

@@ -4,6 +4,8 @@ import AudioContextManagerEvent from "../event/AudioContextManagerEvent";
 import EventDispatcher from "./EventDispatcher";
 import Connection from "./Connection";
 import Patch from "./Patch";
+import Module from "./Module";
+
 
 class AudioContextManager extends EventDispatcher
 {
@@ -11,7 +13,14 @@ class AudioContextManager extends EventDispatcher
 	public logColor:string = '#FF00FF';
 	public audioContext:AudioContext;
 	public patchEventHandler:(type:string, data:any)=>void;
-	
+
+	// todo rename this class? AudioContextSyncer, WebAudioGraphSyncer or something in that line
+
+	/**
+	 * This class makes sure that whatever happens on the patch is correctly shadowed on the graph of the actual Web Audio API.
+	 * @param patch
+	 * @param audioContext
+     */
 	constructor(patch:Patch, audioContext:AudioContext)
 	{
 		super();
@@ -35,21 +44,21 @@ class AudioContextManager extends EventDispatcher
 	 * @param type
 	 * @param data
      */
-	private handlePatchEvent(type:string, data:any):void
+	private handlePatchEvent(type:string, data:any):void // todo type data
 	{
 		switch(type)
 		{
 			case PatchEvent.MODULE_ADDED:
 			{
-				var module = data.module;
+				let module = data.module;
 
 				switch(module.definition.category)
 				{
 					case ModuleCategories.NATIVE:
 					{
 						// call the function with supplied arguments to create the audionode and store it
-						var jsMethodName = module.definition.js;
-						var audioNode = this.audioContext[jsMethodName].call(this.audioContext, data.args);
+						let jsMethodName:string = module.definition.js;
+						let audioNode:AudioNode = this.audioContext[jsMethodName].call(this.audioContext, data.args);
 						module.setAudioNode(audioNode);
 
 						// start if osc TODO methods as buttons?
@@ -97,6 +106,7 @@ class AudioContextManager extends EventDispatcher
 			}
 			case PatchEvent.MODULE_REMOVED:
 			{
+				// todo what is this
 				//this.codeGenerator.addToLiveCode(this.codeGenerator.getStringForModuleRemoved(data.module));	
 				//this.dispatchEvent(AudioContextManagerEvent.MODULE_REMOVED, {module: data.module});
 				break;
@@ -121,11 +131,11 @@ class AudioContextManager extends EventDispatcher
 				var outgoingApiConnections = [];
 				for(var i = 0; i < apiConnectionsToRemove.length; i++)
 				{
-					var apiConnectionToRemove = apiConnectionsToRemove[i];
+					var apiConnectionToRemove:Connection = apiConnectionsToRemove[i];
 
 					// get all outgoing connections for the source modules+outputs of these connections
-					var sourceModuleToClear = apiConnectionToRemove.sourceModule;
-					var outgoingConnections = sourceModuleToClear.getOutgoingConnectionsForOutput(apiConnectionToRemove.sourceOutputIndex);
+					var sourceModuleToClear:Module = apiConnectionToRemove.sourceModule;
+					var outgoingConnections:Array<Connection> = sourceModuleToClear.getOutgoingConnectionsForOutput(apiConnectionToRemove.sourceOutputIndex);
 
 					// get all the api connections for these connections
 					for(var j = 0; j < outgoingConnections.length; j++)
@@ -145,7 +155,7 @@ class AudioContextManager extends EventDispatcher
 
 				// we now have a list of the outgoing api connections, which should include the ones to remove
 				// make a new list without the ones we want to remove (which is the list of connections we need to restore)
-				var apiConnectionsToRestore = [];
+				var apiConnectionsToRestore:Array<Connection> = [];
 
 				// loop through all connections
 				for(var i = 0; i < outgoingApiConnections.length; i++)
@@ -201,15 +211,11 @@ class AudioContextManager extends EventDispatcher
 		}
 	}
 
-	public addApiConnectionFor(connection:Connection):void
+	private addApiConnectionFor(connection:Connection):void
 	{
-		var apiConnections = connection.getApiConnections();
-
 		// connect all sources with all destinations
-		for(var i = 0; i < apiConnections.length; i++)
+		connection.getApiConnections().forEach(connection =>
 		{
-			var connection = apiConnections[i];
-
 			// -1 means it's an output module in the rootpatch, in that case we have to connect to the destination
 			if(connection.destinationInputIndex === -1)
 			{
@@ -232,9 +238,8 @@ class AudioContextManager extends EventDispatcher
 
 			}
 
-
 			this.dispatchEvent(AudioContextManagerEvent.CONNECTION_ADDED, {connection: connection});
-		}
+		});
 	}
 }
 
