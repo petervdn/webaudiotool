@@ -36,7 +36,8 @@ define(["require", "exports"], function (require, exports) {
             }
             else {
                 if (this._eventListeners[type]) {
-                    for (var i = 0; i < this._eventListeners[type].length; i++) {
+                    let len = this._eventListeners[type].length; // putting this in the for-loop will break when removing a module. i wonder why this work now though
+                    for (var i = 0; i < len; i++) {
                         this._eventListeners[type][i](type, data);
                     }
                 }
